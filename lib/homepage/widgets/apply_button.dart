@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:project/constants/gaps.dart';
@@ -29,7 +29,7 @@ class ApplyButton extends ConsumerWidget {
           0xFFE6C483,
         ),
       ),
-      height: size.width * 0.3,
+      height: size.width * 0.23,
       width: size.width * 0.4,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -38,13 +38,13 @@ class ApplyButton extends ConsumerWidget {
             text,
             style: TextStyle(
               fontWeight: FontWeight.w600,
-              fontSize: Theme.of(context).textTheme.titleLarge!.fontSize,
+              fontSize: Theme.of(context).textTheme.titleMedium!.fontSize,
             ),
           ),
-          Gaps.v20,
+          Gaps.v10,
           FaIcon(
             icon,
-            size: Theme.of(context).textTheme.headlineLarge!.fontSize,
+            size: Theme.of(context).textTheme.headlineMedium!.fontSize,
           )
         ],
       ),

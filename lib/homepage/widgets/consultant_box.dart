@@ -31,6 +31,7 @@ class ConsultantBox extends ConsumerWidget {
             indent: 5,
             endIndent: 10, // 구분선의 색상을 지정합니다.
           ),
+          Gaps.v5,
           Row(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [

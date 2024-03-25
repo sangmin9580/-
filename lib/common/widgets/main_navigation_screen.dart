@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:project/constants/gaps.dart';
 import 'package:project/constants/sizes.dart';
+import 'package:project/consultantexample/view/conultantexample_screen.dart';
 import 'package:project/homepage/view/homepage_screen.dart';
 
 class MainNavgationScreen extends ConsumerWidget {
@@ -21,7 +22,7 @@ class MainNavgationScreen extends ConsumerWidget {
             "멍선생",
             style: TextStyle(
               color: Theme.of(context).primaryColor,
-              fontSize: Theme.of(context).textTheme.headlineMedium!.fontSize,
+              fontSize: Theme.of(context).textTheme.headlineSmall!.fontSize,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -45,9 +46,9 @@ class MainNavgationScreen extends ConsumerWidget {
               bottom: 10,
               top: 15,
             ),
-            labelStyle: const TextStyle(
+            labelStyle: TextStyle(
               fontWeight: FontWeight.w600,
-              fontSize: Sizes.size20,
+              fontSize: Theme.of(context).textTheme.titleMedium!.fontSize,
             ),
             tabs: const [
               Text("홈"),
@@ -58,9 +59,11 @@ class MainNavgationScreen extends ConsumerWidget {
         ),
         body: const TabBarView(
           children: [
-            SingleChildScrollView(child: HomepageScreen()),
-            Center(
-              child: Text('1'),
+            SingleChildScrollView(
+              child: HomepageScreen(),
+            ),
+            SingleChildScrollView(
+              child: ConsultantExampleScreen(),
             ),
             Center(
               child: Text('1'),

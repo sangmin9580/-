@@ -138,9 +138,9 @@ class HomepageScreen extends ConsumerWidget {
               child: Text(
                 "최신 상담글 더 보기",
                 style: TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize:
-                        Theme.of(context).textTheme.titleMedium!.fontSize),
+                  fontWeight: FontWeight.w600,
+                  fontSize: Theme.of(context).textTheme.titleMedium!.fontSize,
+                ),
               ),
             ),
           )
