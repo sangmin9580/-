@@ -5,12 +5,12 @@ import 'package:project/common/widgets/main_navigation_screen.dart';
 final routerProvider = Provider(
   (ref) {
     return GoRouter(
-      initialLocation: MainNavgationScreen.routeURL,
+      initialLocation: MainNavigationScreen.routeURL,
       routes: [
         GoRoute(
-          path: MainNavgationScreen.routeURL,
-          name: MainNavgationScreen.routeName,
-          builder: (context, state) => const MainNavgationScreen(),
+          path: MainNavigationScreen.routeURL,
+          name: MainNavigationScreen.routeName,
+          builder: (context, state) => const MainNavigationScreen(),
         )
       ],
     );
