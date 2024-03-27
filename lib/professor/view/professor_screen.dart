@@ -343,29 +343,38 @@ class _ProfessorScreenState extends ConsumerState<ProfessorScreen>
                         ),
                       ],
                     ),
+                    ProfessorItems(
+                      headertitle: "기타",
+                      items: [
+                        Item(
+                          title: "기타",
+                          subtitle: "기타 문의하세요",
+                        ),
+                      ],
+                    ),
                   ],
                 ),
               ),
             ],
           ),
           // '지도로 찾기' 탭의 화면
-
+          // 수의사 선택시
           if (_subSelectedIndex == 0)
             ListView.builder(
               itemCount: 1,
               itemBuilder: (context, index) => Column(
                 children: [
-                  ProfessorItems(
+                  MapItems(
                     headertitle: "서울특별시",
                     items: [
                       Item(
-                        title: "서울 서초/강남",
+                        title: "서초/강남",
                       ),
                       Item(
-                        title: "서울 강동/송파",
+                        title: "강동/송파",
                       ),
                       Item(
-                        title: "서울 강서/양천/영등포/구로",
+                        title: "강서/양천/영등포/구로",
                       ),
                       Item(
                         title: "도봉/강북/성북/노원",
@@ -384,7 +393,7 @@ class _ProfessorScreenState extends ConsumerState<ProfessorScreen>
                       ),
                     ],
                   ),
-                  ProfessorItems(
+                  MapItems(
                     headertitle: "경기도",
                     items: [
                       Item(
@@ -413,6 +422,8 @@ class _ProfessorScreenState extends ConsumerState<ProfessorScreen>
                 ],
               ),
             ),
+
+          //훈련사 선택시
           if (_subSelectedIndex == 1)
             Container(
               color: Colors.red,
