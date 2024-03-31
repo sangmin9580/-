@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:project/common/widgets/viewmodel/main_navigation_vm.dart';
 import 'package:project/constants/gaps.dart';
 import 'package:project/constants/sizes.dart';
 import 'package:project/consultantexample/view/consultationwriting_screen.dart';
@@ -21,27 +22,35 @@ class MainNavigationScreen extends ConsumerStatefulWidget {
 
 class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen>
     with SingleTickerProviderStateMixin {
-  int _tabBarselectedIndex = 0;
-  int _navigationBarselctedIndex = 0;
-
   late final TabController _tabController;
   List<Widget> screens = [];
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
-    _screenInitailize();
-  }
+    final state = ref.read(mainNavigationViewModelProvider);
 
-// screens를 초기화하기 위해서 쓴 함수
-  void _screenInitailize() {
-    screens = _buildScreens();
+    //_tabController 변경
+    _tabController = TabController(
+      length: 3,
+      vsync: this,
+      initialIndex: state.tabBarSelectedIndex,
+    );
+
+    //_tabController addlistener를 통해 tabBar를 조정
+    _tabController.addListener(() {
+      if (!_tabController.indexIsChanging) {
+        ref
+            .read(mainNavigationViewModelProvider.notifier)
+            .setTabBarSelectedIndex(_tabController.index);
+      }
+    });
   }
 
 // bottomNavigationBar index에 따라서 Screen변화를 주기 위한 함수
-  List<Widget> _buildScreens() {
-    if (_tabBarselectedIndex != 2) {
+  List<Widget> _buildScreens(
+      int tabBarSelectedIndex, int navigationBarSelectedIndex) {
+    if (tabBarSelectedIndex != 2) {
       return [
         TabBarView(
           controller: _tabController,
@@ -75,23 +84,53 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen>
     }
   }
 
-  void _tabBarTap(int index) {
-    _tabBarselectedIndex = index;
-    _screenInitailize();
-    // tabbarindex가 변화하면 _screenInitailize 값도 변할테니까 함수 넣어줌
-    setState(() {});
+  void _navigationBarTap(int index) {
+    final viewModel = ref.read(mainNavigationViewModelProvider.notifier);
+
+    // 선택된 탭이 이미 활성화된 탭과 동일하면, tabBarSelectedIndex를 0으로 설정
+    if (index ==
+            ref
+                .read(mainNavigationViewModelProvider)
+                .navigationBarSelectedIndex &&
+        index == 0) {
+      viewModel.setTabBarSelectedIndex(0);
+      _tabController.index = 0;
+    }
+
+    // 항상 navigationBarSelectedIndex를 업데이트
+    viewModel.setNavigationBarSelectedIndex(index);
   }
 
-  void _navigationBarTap(int index) {
-    _navigationBarselctedIndex = index;
-
-    if (index == 0) {
-      _tabBarselectedIndex = 0;
-      _tabController.animateTo(index);
-    }
-    _screenInitailize();
-    // tabbarindex가 변화하면 _screenInitailize 값도 변할테니까 함수 넣어줌
-    setState(() {});
+  Widget _buildBottomNavigationBar(int selectedIndex, WidgetRef ref) {
+    return BottomNavigationBar(
+      currentIndex: selectedIndex,
+      onTap: (index) {
+        _navigationBarTap(index);
+      },
+      iconSize: Sizes.size20,
+      selectedFontSize: Sizes.size10,
+      unselectedFontSize: Sizes.size8,
+      items: const [
+        BottomNavigationBarItem(
+          icon: FaIcon(
+            FontAwesomeIcons.house,
+          ),
+          label: "Home",
+        ),
+        BottomNavigationBarItem(
+          icon: FaIcon(
+            FontAwesomeIcons.circlePlus,
+          ),
+          label: "상담글 작성",
+        ),
+        BottomNavigationBarItem(
+          icon: FaIcon(
+            FontAwesomeIcons.user,
+          ),
+          label: "마이페이지",
+        ),
+      ],
+    );
   }
 
   @override
@@ -102,42 +141,20 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen>
 
   @override
   Widget build(BuildContext context) {
-    final bottomNavigationBar = Theme(
-      data: Theme.of(context).copyWith(
-        splashColor: Colors.transparent, // splash 효과를 투명하게 설정
-      ),
-      child: BottomNavigationBar(
-        currentIndex: _navigationBarselctedIndex,
-        onTap: (index) => _navigationBarTap(index),
-        iconSize: Sizes.size20,
-        selectedFontSize: Sizes.size10,
-        unselectedFontSize: Sizes.size8,
-        items: const [
-          BottomNavigationBarItem(
-            icon: FaIcon(
-              FontAwesomeIcons.house,
-            ),
-            label: "Home",
-          ),
-          BottomNavigationBarItem(
-            icon: FaIcon(
-              FontAwesomeIcons.circlePlus,
-            ),
-            label: "상담글 작성",
-          ),
-          BottomNavigationBarItem(
-            icon: FaIcon(
-              FontAwesomeIcons.user,
-            ),
-            label: "마이페이지",
-          ),
-        ],
-      ),
-    );
+    final state = ref.watch(mainNavigationViewModelProvider);
+    List<Widget> screens = _buildScreens(
+        state.tabBarSelectedIndex, state.navigationBarSelectedIndex);
 
-    if (_navigationBarselctedIndex == 1) {
+    final bottomNavigationBar = Theme(
+        data: Theme.of(context).copyWith(
+          splashColor: Colors.transparent, // splash 효과를 투명하게 설정
+        ),
+        child:
+            _buildBottomNavigationBar(state.navigationBarSelectedIndex, ref));
+
+    if (state.navigationBarSelectedIndex != 0) {
       return Scaffold(
-        body: screens[_navigationBarselctedIndex],
+        body: screens[state.navigationBarSelectedIndex],
         bottomNavigationBar:
             bottomNavigationBar, // 이 부분은 예시로 추가한 부분입니다. 실제 코드에 맞게 조정하세요.
       );
@@ -164,10 +181,15 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen>
           ),
           Gaps.h10,
         ],
-        bottom: (_tabBarselectedIndex != 2 && _navigationBarselctedIndex == 0)
+        bottom: (state.tabBarSelectedIndex != 2 &&
+                state.navigationBarSelectedIndex == 0)
             ? TabBar(
                 controller: _tabController,
-                onTap: (value) => _tabBarTap(value),
+                onTap: (index) {
+                  ref
+                      .read(mainNavigationViewModelProvider.notifier)
+                      .setTabBarSelectedIndex(index);
+                },
                 splashFactory: NoSplash.splashFactory,
                 unselectedLabelColor: Colors.grey.shade500,
                 unselectedLabelStyle: const TextStyle(
@@ -189,7 +211,11 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen>
               )
             : null,
       ),
-      body: screens[_navigationBarselctedIndex],
+      body: IndexedStack(
+        index: state
+            .navigationBarSelectedIndex, // BottomNavigationBar의 선택에 따라 화면 전환
+        children: screens,
+      ),
       bottomNavigationBar: bottomNavigationBar,
     );
   }
