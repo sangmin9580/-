@@ -161,21 +161,6 @@ class _ProfessorScreenState extends ConsumerState<ProfessorScreen>
               tabController: _subTabController,
             ),
           ),
-
-          // if (_selectedIndex == 0)
-          //   SliverPersistentHeader(
-          //     pinned: true,
-          //     delegate: VetPersistentTabBar(
-          //       tabController: _vetclassTabController,
-          //     ),
-          //   ),
-          // if (_selectedIndex == 1)
-          //   SliverPersistentHeader(
-          //     pinned: true,
-          //     delegate: TrainerPersistentTabBar(
-          //       tabController: _trainerclassTabController,
-          //     ),
-          //   ),
         ];
       },
       body: TabBarView(
@@ -425,9 +410,68 @@ class _ProfessorScreenState extends ConsumerState<ProfessorScreen>
 
           //훈련사 선택시
           if (_subSelectedIndex == 1)
-            Container(
-              color: Colors.red,
-            )
+            ListView.builder(
+              itemCount: 1,
+              itemBuilder: (context, index) => Column(
+                children: [
+                  MapItems(
+                    headertitle: "서울특별시",
+                    items: [
+                      Item(
+                        title: "서초/강남",
+                      ),
+                      Item(
+                        title: "강동/송파",
+                      ),
+                      Item(
+                        title: "강서/양천/영등포/구로",
+                      ),
+                      Item(
+                        title: "도봉/강북/성북/노원",
+                      ),
+                      Item(
+                        title: "동대문/성동/광진/중랑",
+                      ),
+                      Item(
+                        title: "종로/중구/용산",
+                      ),
+                      Item(
+                        title: "서대문/마포/은평",
+                      ),
+                      Item(
+                        title: "동작/관악/금천",
+                      ),
+                    ],
+                  ),
+                  MapItems(
+                    headertitle: "경기도",
+                    items: [
+                      Item(
+                        title: "수원/화성/용인",
+                      ),
+                      Item(
+                        title: "안산/시흥/광명/안양",
+                      ),
+                      Item(
+                        title: "성남/광주/하남",
+                      ),
+                      Item(
+                        title: "고양/김포/파주",
+                      ),
+                      Item(
+                        title: "의정부/남양주/구리",
+                      ),
+                      Item(
+                        title: "평택/오산/안성",
+                      ),
+                      Item(
+                        title: "여주/이천/양평",
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
         ],
       ),
     );

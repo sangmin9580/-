@@ -7,6 +7,7 @@ import 'package:project/constants/sizes.dart';
 import 'package:project/consultantexample/view/consultationwriting_screen.dart';
 import 'package:project/consultantexample/view/conultantexample_screen.dart';
 import 'package:project/homepage/view/homepage_screen.dart';
+import 'package:project/mypage/view/mypage_screen.dart';
 import 'package:project/professor/view/professor_screen.dart';
 
 class MainNavigationScreen extends ConsumerStatefulWidget {
@@ -47,6 +48,8 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen>
     });
   }
 
+//
+
 // bottomNavigationBar index에 따라서 Screen변화를 주기 위한 함수
   List<Widget> _buildScreens(
       int tabBarSelectedIndex, int navigationBarSelectedIndex) {
@@ -68,18 +71,14 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen>
           ],
         ),
         const ConsultationWritingScreen(),
-        Container(
-          color: Colors.green,
-        ),
+        const MyPageScreen(),
       ];
     } else {
       // _tabBarselectedIndex가 2인 경우, ProfessorScreen을 첫 번째 위치에 배치하고 나머지는 기존대로
       return [
         const ProfessorScreen(),
         const ConsultationWritingScreen(),
-        Container(
-          color: Colors.green,
-        ),
+        const MyPageScreen(),
       ];
     }
   }
@@ -101,6 +100,7 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen>
     viewModel.setNavigationBarSelectedIndex(index);
   }
 
+// nivigation 값을 selectedindex에 따라 변경
   Widget _buildBottomNavigationBar(int selectedIndex, WidgetRef ref) {
     return BottomNavigationBar(
       currentIndex: selectedIndex,
@@ -133,6 +133,13 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen>
     );
   }
 
+  void _onAppbarTitleTap() {
+    final state = ref.read(mainNavigationViewModelProvider.notifier);
+    state.setNavigationBarSelectedIndex(0);
+    _tabController.animateTo(0);
+    state.setTabBarSelectedIndex(0);
+  }
+
   @override
   void dispose() {
     _tabController.dispose();
@@ -163,12 +170,15 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen>
     return Scaffold(
       appBar: AppBar(
         // 나중에 누르면 홈오게 만들어야함.
-        title: Text(
-          "멍선생",
-          style: TextStyle(
-            color: Theme.of(context).primaryColor,
-            fontSize: Theme.of(context).textTheme.headlineSmall!.fontSize,
-            fontWeight: FontWeight.bold,
+        title: GestureDetector(
+          onTap: _onAppbarTitleTap,
+          child: Text(
+            "멍선생",
+            style: TextStyle(
+              color: Theme.of(context).primaryColor,
+              fontSize: Theme.of(context).textTheme.headlineSmall!.fontSize,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ),
         actions: const [

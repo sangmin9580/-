@@ -62,9 +62,8 @@ class _ConsultationWritingScreenState
   }
 
   void _onBackbuttonTap() {
-    final state = ref.watch(mainNavigationViewModelProvider.notifier);
+    final state = ref.read(mainNavigationViewModelProvider.notifier);
     state.setNavigationBarSelectedIndex(0);
-    state.setTabBarSelectedIndex(0);
   }
 
   void _ontitleStartWriting(GlobalKey key) {
@@ -114,7 +113,7 @@ class _ConsultationWritingScreenState
           title: Row(
             children: [
               GestureDetector(
-                onTap: () => _onBackbuttonTap,
+                onTap: _onBackbuttonTap,
                 child: const SizedBox(
                   width: Sizes.size32,
                   child: FaIcon(
@@ -123,7 +122,13 @@ class _ConsultationWritingScreenState
                   ),
                 ),
               ),
-              const Text("상담글 작성"),
+              const Text(
+                "상담글 작성",
+                style: TextStyle(
+                  fontSize: Sizes.size20,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
             ],
           ),
           actions: [
