@@ -6,6 +6,7 @@ import 'package:project/constants/gaps.dart';
 import 'package:project/constants/sizes.dart';
 import 'package:project/consultantexample/view/consultationwriting_screen.dart';
 import 'package:project/consultantexample/view/conultantexample_screen.dart';
+import 'package:project/consultantexample/view/search_screen.dart';
 import 'package:project/homepage/view/homepage_screen.dart';
 import 'package:project/mypage/view/mypage_screen.dart';
 import 'package:project/professor/view/professor_screen.dart';
@@ -70,6 +71,7 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen>
             // 전문가 화면으로 넘어가기 위해 그냥 끼어놓은 화면
           ],
         ),
+        const SearchScreen(),
         const ConsultationWritingScreen(),
         const MyPageScreen(),
       ];
@@ -77,6 +79,7 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen>
       // _tabBarselectedIndex가 2인 경우, ProfessorScreen을 첫 번째 위치에 배치하고 나머지는 기존대로
       return [
         const ProfessorScreen(),
+        const SearchScreen(),
         const ConsultationWritingScreen(),
         const MyPageScreen(),
       ];
@@ -119,6 +122,12 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen>
         ),
         BottomNavigationBarItem(
           icon: FaIcon(
+            FontAwesomeIcons.magnifyingGlass,
+          ),
+          label: "검색",
+        ),
+        BottomNavigationBarItem(
+          icon: FaIcon(
             FontAwesomeIcons.circlePlus,
           ),
           label: "상담글 작성",
@@ -138,6 +147,15 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen>
     state.setNavigationBarSelectedIndex(0);
     _tabController.animateTo(0);
     state.setTabBarSelectedIndex(0);
+  }
+
+  void _onSearchTap() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const SearchScreen(),
+      ),
+    );
   }
 
   @override
@@ -181,12 +199,15 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen>
             ),
           ),
         ),
-        actions: const [
-          FaIcon(
-            FontAwesomeIcons.magnifyingGlass,
+        actions: [
+          GestureDetector(
+            onTap: _onSearchTap,
+            child: const FaIcon(
+              FontAwesomeIcons.magnifyingGlass,
+            ),
           ),
           Gaps.h10,
-          Text(
+          const Text(
             "로그인/가입",
           ),
           Gaps.h10,

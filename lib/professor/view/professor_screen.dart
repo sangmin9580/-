@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:project/constants/default.dart';
 
 import 'package:project/constants/sizes.dart';
+import 'package:project/professor/view/professor_search_screen.dart';
 import 'package:project/professor/widgets/persistenttabbar/subpersistenttabbar.dart';
 
 import '../widgets/item.dart';
@@ -76,6 +77,15 @@ class _ProfessorScreenState extends ConsumerState<ProfessorScreen>
         _subSelectedIndex = _subTabController.index;
       });
     });
+  }
+
+  void _gotoProfessorSearchScreen() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const ProfessorSearchScreen(),
+      ),
+    );
   }
 
   @override
@@ -174,22 +184,25 @@ class _ProfessorScreenState extends ConsumerState<ProfessorScreen>
                 itemCount: 1,
                 itemBuilder: (context, index) => Column(
                   children: [
-                    ProfessorItems(
-                      headertitle: "일반 진료 및 예방 접종",
-                      items: [
-                        Item(
-                          title: "일상적인 건강진단",
-                          subtitle: "체중, 체온 측정, 심장 및 호흡 속도 검사 등",
-                        ),
-                        Item(
-                          title: "예방접종",
-                          subtitle: "개인의 나이, 생활 환경, 여행 습관을 고려해 맞춤형 접종 계획",
-                        ),
-                        Item(
-                          title: "기본적인 건강 관리 상담",
-                          subtitle: "건강한 생활 습관, 영양 상담, 운동 권장 사항 등",
-                        ),
-                      ],
+                    GestureDetector(
+                      onTap: _gotoProfessorSearchScreen,
+                      child: ProfessorItems(
+                        headertitle: "일반 진료 및 예방 접종",
+                        items: [
+                          Item(
+                            title: "일상적인 건강진단",
+                            subtitle: "체중, 체온 측정, 심장 및 호흡 속도 검사 등",
+                          ),
+                          Item(
+                            title: "예방접종",
+                            subtitle: "개인의 나이, 생활 환경, 여행 습관을 고려해 맞춤형 접종 계획",
+                          ),
+                          Item(
+                            title: "기본적인 건강 관리 상담",
+                            subtitle: "건강한 생활 습관, 영양 상담, 운동 권장 사항 등",
+                          ),
+                        ],
+                      ),
                     ),
                     ProfessorItems(
                       headertitle: "특수 질병 관리",
