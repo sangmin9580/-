@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:project/common/widgets/viewmodel/main_navigation_vm.dart';
+import 'package:project/common/viewmodel/main_navigation_vm.dart';
 import 'package:project/constants/gaps.dart';
 import 'package:project/constants/sizes.dart';
 import 'package:project/homepage/widgets/apply_button.dart';
@@ -80,7 +80,7 @@ class HomepageScreen extends ConsumerWidget {
               GestureDetector(
                 onTap: () => ref
                     .read(mainNavigationViewModelProvider.notifier)
-                    .setNavigationBarSelectedIndex(1),
+                    .setNavigationBarSelectedIndex(2),
                 child: const ApplyButton(
                   text: "상담글 작성",
                   icon: FontAwesomeIcons.filePen,

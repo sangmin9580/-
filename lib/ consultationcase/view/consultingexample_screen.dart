@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:project/%20consultationcase/viewmodel/consultingexample_vm.dart';
+
 import 'package:project/constants/default.dart';
 import 'package:project/constants/gaps.dart';
-import 'package:project/consultantexample/widgets/consultantexample_box.dart';
+import 'package:project/%20consultationcase/widgets/consultantexample_box.dart';
 
 class ConsultantExampleScreen extends ConsumerWidget {
-  const ConsultantExampleScreen({super.key});
+  const ConsultantExampleScreen({
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -73,7 +77,7 @@ class ConsultantExampleScreen extends ConsumerWidget {
               shrinkWrap: true, // 여기를 추가하세요
               physics: const NeverScrollableScrollPhysics(), // 그리고 여기도 추가하세요
               itemCount: 10,
-              itemBuilder: (context, index) => const ConsultantExampleBox(
+              itemBuilder: (context, index) => ConsultantExampleBox(
                 consultantclass: "고소/소송절차",
                 title: "항소재판 변호사 선임과 징역형 상담",
                 name: "윤상민",
@@ -82,6 +86,9 @@ class ConsultantExampleScreen extends ConsumerWidget {
                 count: 3,
                 time: 30,
                 views: 16,
+                onTap: () {
+                  ref.read(screenProvider.notifier).state = true;
+                },
               ),
             ),
           ),

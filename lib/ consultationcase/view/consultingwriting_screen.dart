@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
-import 'package:project/common/widgets/main_navigation_screen.dart';
-import 'package:project/common/widgets/viewmodel/main_navigation_vm.dart';
+import 'package:project/common/view/main_navigation_screen.dart';
+import 'package:project/common/viewmodel/main_navigation_vm.dart';
 import 'package:project/constants/default.dart';
 import 'package:project/constants/gaps.dart';
 import 'package:project/constants/sizes.dart';
@@ -61,9 +61,43 @@ class _ConsultationWritingScreenState
     );
   }
 
-  void _onBackbuttonTap() {
-    final state = ref.read(mainNavigationViewModelProvider.notifier);
-    state.setNavigationBarSelectedIndex(0);
+  void _onBackbuttonTap() async {
+    // 제목이나 내용에 글자가 있는지 확인
+    bool hasContent = _title.trim().isNotEmpty || _content.trim().isNotEmpty;
+
+    // 내용이 있다면 모달 창을 띄우고, 사용자의 선택을 기다림
+    if (hasContent) {
+      bool? result = await showDialog<bool>(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text("작성을 그만하시겠어요?"),
+            content: const Text("작성하신 내용은 저장되지 않습니다."),
+            actions: <Widget>[
+              TextButton(
+                child: const Text("취소"),
+                onPressed: () =>
+                    Navigator.of(context).pop(false), // 취소: false 반환
+              ),
+              TextButton(
+                child: const Text("확인"),
+                onPressed: () => Navigator.of(context).pop(true), // 확인: true 반환
+              ),
+            ],
+          );
+        },
+      );
+
+      // 사용자가 '확인'을 눌러 모달 창을 닫았다면, 이전 화면으로 돌아감
+      if (result == true) {
+        final state = ref.read(mainNavigationViewModelProvider.notifier);
+        state.setNavigationBarSelectedIndex(0);
+      }
+    } else {
+      // 내용이 없다면 바로 이전 화면으로 돌아감
+      final state = ref.read(mainNavigationViewModelProvider.notifier);
+      state.setNavigationBarSelectedIndex(0);
+    }
   }
 
   void _ontitleStartWriting(GlobalKey key) {

@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:project/common/widgets/viewmodel/main_navigation_vm.dart';
+import 'package:project/common/viewmodel/main_navigation_vm.dart';
 import 'package:project/mypage/model/mypage_model.dart';
 
 class MypageViewModel extends Notifier<MypageModel> {

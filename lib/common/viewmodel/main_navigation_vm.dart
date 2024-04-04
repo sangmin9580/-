@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:project/common/widgets/model/main_navigation_model.dart';
+import 'package:project/common/model/main_navigation_model.dart';
 
 class MainNavigationViewModel extends Notifier<MainNavigationModel> {
   @override
@@ -20,3 +20,6 @@ final mainNavigationViewModelProvider =
     NotifierProvider<MainNavigationViewModel, MainNavigationModel>(
   () => MainNavigationViewModel(),
 );
+
+final bottomNavigationBarVisibleProvider = StateProvider<bool>((ref) => true);
+final currentScreenProvider = StateProvider<int>((ref) => 0); // 기본값은 0 (첫 번째 탭)

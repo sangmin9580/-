@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:project/constants/default.dart';
 
 import 'package:project/constants/sizes.dart';
-import 'package:project/professor/view/professor_search_screen.dart';
+import 'package:project/professor/view/professor_navigation_screen.dart';
 import 'package:project/professor/widgets/persistenttabbar/subpersistenttabbar.dart';
 
 import '../widgets/item.dart';
@@ -83,7 +83,7 @@ class _ProfessorScreenState extends ConsumerState<ProfessorScreen>
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => const ProfessorSearchScreen(),
+        builder: (context) => const ProfessorNavigationScreen(),
       ),
     );
   }

@@ -1,5 +1,6 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:project/common/widgets/model/search_model.dart';
+import 'package:project/common/model/search_model.dart';
 
 class SearchViewModel extends Notifier<SearchModel> {
   @override
@@ -39,3 +40,9 @@ final searchViewModelProvider = NotifierProvider<SearchViewModel, SearchModel>(
     return SearchViewModel();
   },
 );
+
+//final searchFocusNodeProvider = StateProvider<FocusNode?>((ref) => null);
+final autoDisposeSearchFocusNodeProvider =
+    StateProvider.autoDispose<FocusNode>((ref) {
+  return FocusNode();
+});
