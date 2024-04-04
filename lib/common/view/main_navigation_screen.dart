@@ -15,7 +15,12 @@ import 'package:project/mypage/view/mypage_screen.dart';
 import 'package:project/professor/view/professor_screen.dart';
 
 class MainNavigationScreen extends ConsumerStatefulWidget {
-  const MainNavigationScreen({super.key});
+  const MainNavigationScreen({
+    super.key,
+    required this.tab,
+  });
+
+  final String tab;
 
   static const routeURL = '/home';
   static const routeName = 'home';
@@ -28,6 +33,7 @@ class MainNavigationScreen extends ConsumerStatefulWidget {
 class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen>
     with SingleTickerProviderStateMixin {
   late final TabController _tabController;
+
   List<Widget> screens = [];
   // 0은 목록 화면, 1은 상세 화면
 
@@ -46,9 +52,12 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen>
     //_tabController addlistener를 통해 tabBar를 조정
     _tabController.addListener(() {
       if (!_tabController.indexIsChanging) {
+        ref.read(tabControllerIndexProvider.notifier).state =
+            _tabController.index;
+        final tabIndex = ref.read(tabControllerIndexProvider.notifier).state;
         ref
             .read(mainNavigationViewModelProvider.notifier)
-            .setTabBarSelectedIndex(_tabController.index);
+            .setTabBarSelectedIndex(tabIndex);
         // 탭 변경 시 screenProvider 상태를 false로 설정
         ref.read(screenProvider.notifier).state = false;
       }
@@ -116,7 +125,8 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen>
                 .navigationBarSelectedIndex &&
         index == 0) {
       viewModel.setTabBarSelectedIndex(0);
-      _tabController.index = 0;
+
+      ref.read(tabControllerIndexProvider.notifier).state = 0;
     }
 
     // "상담글 작성" 탭이 선택되었는지 확인

@@ -23,3 +23,4 @@ final mainNavigationViewModelProvider =
 
 final bottomNavigationBarVisibleProvider = StateProvider<bool>((ref) => true);
 final currentScreenProvider = StateProvider<int>((ref) => 0); // 기본값은 0 (첫 번째 탭)
+final tabControllerIndexProvider = StateProvider<int>((ref) => 0);

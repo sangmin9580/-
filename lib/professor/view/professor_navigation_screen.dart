@@ -7,6 +7,7 @@ import 'package:project/constants/default.dart';
 import 'package:project/constants/gaps.dart';
 import 'package:project/constants/sizes.dart';
 import 'package:project/%20consultationcase/widgets/consultantexample_box.dart';
+import 'package:project/professor/widgets/pricdelistcontent.dart';
 
 class ProfessorNavigationScreen extends ConsumerStatefulWidget {
   const ProfessorNavigationScreen({super.key});
@@ -96,8 +97,8 @@ class _ProfessorNavigationScreenState
           Container(
             width: MediaQuery.of(context).size.width,
             height: Sizes.size72,
-            decoration: const BoxDecoration(
-              color: Color(0xFFE6C483),
+            decoration: BoxDecoration(
+              color: Colors.grey.shade100,
             ),
             child: Padding(
               padding: const EdgeInsets.symmetric(
@@ -265,50 +266,7 @@ class _ProfessorNavigationScreenState
         controller: _tabController,
         children: screens, // screens 리스트에 두 개의 위젯이 모두 포함되어 있어야 합니다.
       ),
-    );
-  }
-}
-
-class PricelistContent extends StatelessWidget {
-  const PricelistContent({
-    super.key,
-    this.subject = "",
-    required this.content,
-    required this.price,
-  });
-
-  final String subject;
-  final String content;
-
-  final String price;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          subject,
-          style: TextStyle(
-            fontSize: Theme.of(context).textTheme.bodySmall!.fontSize,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-        Text(
-          content,
-          style: TextStyle(
-            fontSize: Theme.of(context).textTheme.bodySmall!.fontSize,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        Text(
-          price,
-          style: TextStyle(
-            fontSize: Theme.of(context).textTheme.bodySmall!.fontSize,
-          ),
-        ),
-      ],
+      bottomNavigationBar: const BottomAppBar(),
     );
   }
 }
