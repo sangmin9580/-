@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:project/%20consultationcase/view/consulting_detail_screen.dart';
-import 'package:project/%20consultationcase/viewmodel/consultingexample_vm.dart';
+import 'package:project/consultationcase/view/consulting_detail_screen.dart';
+import 'package:project/consultationcase/viewmodel/consultingexample_vm.dart';
 import 'package:project/common/viewmodel/main_navigation_vm.dart';
+import 'package:project/common/widgets/bottomnavigationBar.dart';
 
 import 'package:project/constants/gaps.dart';
-import 'package:project/constants/sizes.dart';
-import 'package:project/%20consultationcase/view/consultingwriting_screen.dart';
-import 'package:project/%20consultationcase/view/consultingexample_screen.dart';
+
+import 'package:project/consultationcase/view/consultingwriting_screen.dart';
+import 'package:project/consultationcase/view/consultingexample_screen.dart';
 import 'package:project/common/view/search_screen.dart';
 import 'package:project/homepage/view/homepage_screen.dart';
 import 'package:project/mypage/view/mypage_screen.dart';
@@ -17,13 +18,10 @@ import 'package:project/professor/view/professor_screen.dart';
 class MainNavigationScreen extends ConsumerStatefulWidget {
   const MainNavigationScreen({
     super.key,
-    required this.tab,
   });
 
-  final String tab;
-
-  static const routeURL = '/home';
-  static const routeName = 'home';
+  static const routeURL = '/main';
+  static const routeName = 'main';
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() =>
@@ -106,12 +104,27 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen>
     }
   }
 
-  void _navigationBarTap(int index) {
+  void _onItemSelected(int index) {
     final viewModel = ref.read(mainNavigationViewModelProvider.notifier);
+    final currentState = ref.read(mainNavigationViewModelProvider);
+
     if (index == 1) {
       // 검색 탭이 선택되었을 때
       Navigator.of(context)
           .push(MaterialPageRoute(builder: (_) => const SearchScreen()));
+    } else if (index == 0) {
+      if (currentState.navigationBarSelectedIndex == 0) {
+        // '홈' 탭을 한 번 더 눌렀을 때, 강제로 홈 화면 리셋
+
+        _tabController.animateTo(0);
+        ref.read(tabControllerIndexProvider.notifier).state = 0;
+      } else if (viewModel.wasProfessorTabPreviouslySelected) {
+        ref.read(tabControllerIndexProvider.notifier).state =
+            2; // 이전에 '전문가' 탭 선택 로직
+      } else {
+        // '전문가' 탭이 이전에 선택되지 않았다면, '홈' 인덱스로 설정
+        viewModel.setTabBarSelectedIndex(0);
+      }
     } else {
       // 다른 탭 로직 처리
 
@@ -144,42 +157,10 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen>
   }
 
 // nivigation 값을 selectedindex에 따라 변경
-  Widget _buildBottomNavigationBar(int selectedIndex, WidgetRef ref) {
-    return BottomNavigationBar(
-      type: BottomNavigationBarType.fixed,
-      currentIndex: selectedIndex,
-      onTap: (index) {
-        _navigationBarTap(index);
-      },
-      iconSize: Sizes.size20,
-      selectedFontSize: Sizes.size10,
-      unselectedFontSize: Sizes.size8,
-      items: const [
-        BottomNavigationBarItem(
-          icon: FaIcon(
-            FontAwesomeIcons.house,
-          ),
-          label: "Home",
-        ),
-        BottomNavigationBarItem(
-          icon: FaIcon(
-            FontAwesomeIcons.magnifyingGlass,
-          ),
-          label: "검색",
-        ),
-        BottomNavigationBarItem(
-          icon: FaIcon(
-            FontAwesomeIcons.circlePlus,
-          ),
-          label: "상담글 작성",
-        ),
-        BottomNavigationBarItem(
-          icon: FaIcon(
-            FontAwesomeIcons.user,
-          ),
-          label: "마이페이지",
-        ),
-      ],
+  Widget buildBottomNavigationBar(int selectedIndex, WidgetRef ref) {
+    return CustomBottomNavigationBar(
+      onItemSelected: _onItemSelected,
+      selectedIndex: selectedIndex,
     );
   }
 
@@ -203,6 +184,8 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen>
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(mainNavigationViewModelProvider);
+    final tabIndex = state
+        .navigationBarSelectedIndex; // tab에 따라서 MainNavigationModel의 navigationBarSelectedIndex값이 변하고 그게 tabindex
     final isBottomNavigationBarVisible =
         ref.watch(bottomNavigationBarVisibleProvider);
     List<Widget> screens = _buildScreens(
@@ -212,12 +195,11 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen>
         data: Theme.of(context).copyWith(
           splashColor: Colors.transparent, // splash 효과를 투명하게 설정
         ),
-        child:
-            _buildBottomNavigationBar(state.navigationBarSelectedIndex, ref));
+        child: buildBottomNavigationBar(tabIndex, ref));
 
-    if (state.navigationBarSelectedIndex != 0) {
+    if (tabIndex != 0) {
       return Scaffold(
-        body: screens[state.navigationBarSelectedIndex],
+        body: screens[tabIndex],
         bottomNavigationBar: isBottomNavigationBarVisible
             ? bottomNavigationBar
             : null, // 이 부분은 예시로 추가한 부분입니다. 실제 코드에 맞게 조정하세요.
@@ -242,7 +224,7 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen>
           ),
           actions: [
             GestureDetector(
-              onTap: () => _navigationBarTap(1),
+              onTap: () => _onItemSelected(1),
               child: const FaIcon(
                 FontAwesomeIcons.magnifyingGlass,
               ),
@@ -285,8 +267,7 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen>
               : null,
         ),
         body: IndexedStack(
-          index: state
-              .navigationBarSelectedIndex, // BottomNavigationBar의 선택에 따라 화면 전환
+          index: tabIndex, // BottomNavigationBar의 선택에 따라 화면 전환
           children: screens,
         ),
         bottomNavigationBar: bottomNavigationBar,

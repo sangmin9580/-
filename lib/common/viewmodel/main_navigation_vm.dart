@@ -7,8 +7,31 @@ class MainNavigationViewModel extends Notifier<MainNavigationModel> {
     return MainNavigationModel();
   }
 
+  bool wasProfessorTabPreviouslySelected = false;
+  void setTabFromRoute(String tab) {
+    print('Received tab parameter: $tab');
+    switch (tab) {
+      case 'home':
+        setTabBarSelectedIndex(0);
+        break;
+      case 'search':
+        setTabBarSelectedIndex(1);
+        break;
+      case 'consult':
+        setTabBarSelectedIndex(2);
+        break;
+      case 'mypage':
+        setTabBarSelectedIndex(3);
+        break;
+      default:
+        setTabBarSelectedIndex(0);
+    }
+  }
+
   void setTabBarSelectedIndex(int index) {
     state = state.copyWith(tabBarSelectedIndex: index);
+    // '전문가' 탭 선택 시, wasProfessorTabPreviouslySelected 상태 업데이트
+    wasProfessorTabPreviouslySelected = (index == 2);
   }
 
   void setNavigationBarSelectedIndex(int index) {

@@ -38,3 +38,9 @@ class NotificationRepository {
 final notificationRepoProvider = Provider<NotificationRepository>((ref) {
   throw UnimplementedError(); // main에서 SharedPreferences 인스턴스를 설정할 때까지 이 부분은 대체됩니다.
 });
+
+// isFirstRun 상태를 관리할 FutureProvider를 정의합니다.
+final isFirstRunProvider = FutureProvider<bool>((ref) async {
+  final prefs = await SharedPreferences.getInstance();
+  return prefs.getBool('firstRun') ?? true;
+});

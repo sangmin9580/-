@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:project/%20consultationcase/viewmodel/consultingexample_vm.dart';
+import 'package:project/consultationcase/viewmodel/consultingexample_vm.dart';
 
 import 'package:project/constants/default.dart';
 import 'package:project/constants/gaps.dart';
