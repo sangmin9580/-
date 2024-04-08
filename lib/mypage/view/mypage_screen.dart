@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+
 import 'package:project/constants/default.dart';
 
 import 'package:project/constants/gaps.dart';
 import 'package:project/constants/sizes.dart';
+import 'package:project/mypage/view/pet_navigation_screen.dart';
 import 'package:project/mypage/view/setting_screen.dart';
 import 'package:project/mypage/viewmodel/mypage_vm.dart';
 import 'package:project/mypage/widgets/consultanthistorydetailtile.dart';
@@ -22,6 +24,15 @@ class _MyPageScreenState extends ConsumerState<MyPageScreen> {
       context,
       MaterialPageRoute(
         builder: (context) => const SettingScreen(),
+      ),
+    );
+  }
+
+  void onEditPetTap() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const PetNavigationScreen(),
       ),
     );
   }
@@ -96,12 +107,16 @@ class _MyPageScreenState extends ConsumerState<MyPageScreen> {
                     Text("닉네임"),
                   ],
                 ),
-                Text(
-                  "우리집 댕댕이 정보 편집",
-                  style: TextStyle(
-                    fontWeight: FontWeight.w500,
-                    fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
-                    color: Colors.grey.shade500,
+                GestureDetector(
+                  onTap: onEditPetTap,
+                  child: Text(
+                    "우리집 댕댕이 정보 편집",
+                    style: TextStyle(
+                      fontWeight: FontWeight.w500,
+                      fontSize:
+                          Theme.of(context).textTheme.titleSmall!.fontSize,
+                      color: Colors.grey.shade500,
+                    ),
                   ),
                 ),
               ],

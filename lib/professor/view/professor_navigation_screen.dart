@@ -1,7 +1,7 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:project/common/view/search_screen.dart';
 import 'package:project/consultationcase/view/consulting_detail_screen.dart';
 import 'package:project/common/viewmodel/main_navigation_vm.dart';
 import 'package:project/common/widgets/bottomnavigationBar.dart';
@@ -273,11 +273,14 @@ class _ProfessorNavigationScreenState
           onItemSelected: (Index) {
             // MainNavigationScreen으로 돌아가면서 해당 인덱스의 탭을 활성화합니다.
             Navigator.pop(context); // ProfessorNavigationScreen을 닫습니다.
-            final destination = ref
+            ref
                 .read(mainNavigationViewModelProvider.notifier)
                 .setNavigationBarSelectedIndex(Index); // 탭 인덱스 업데이트
 
-            if (Index == 1) {}
+            if (Index == 1) {
+              Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const SearchScreen()));
+            }
           },
           selectedIndex: 1),
     );
