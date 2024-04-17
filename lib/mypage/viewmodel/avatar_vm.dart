@@ -1,9 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:project/mypage/model/petprofile_model.dart';
+import 'package:project/mypage/model/petavatar_model.dart';
 
-class AvatarViewModel extends Notifier<PetProfileModel> {
+class AvatarViewModel extends Notifier<PetAvatarModel> {
   @override
-  PetProfileModel build() {
-    return PetProfileModel();
+  PetAvatarModel build() {
+    return PetAvatarModel();
   }
 }

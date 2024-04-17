@@ -1,17 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:project/mypage/model/pet_navigation_model.dart';
+import 'package:project/mypage/model/pet_model.dart';
 
-class PetNavigationViewModel extends Notifier<PetNavigationModel> {
+class PetNavigationViewModel extends Notifier<PetModel> {
   @override
-  PetNavigationModel build() {
-    return PetNavigationModel.empty();
+  PetModel build() {
+    return PetModel.empty();
   }
 }
-
-final editModeProvider = StateProvider<bool>((ref) => false);
-final selectedItemsProvider = StateProvider<List<int>>((ref) => []);
-final petListProvider = StateProvider<List<PetNavigationModel>>(
-  (ref) => [
-    PetNavigationModel.empty(),
-  ],
-);

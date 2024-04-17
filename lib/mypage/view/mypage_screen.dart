@@ -14,6 +14,9 @@ import 'package:project/mypage/widgets/consultanthistorydetailtile.dart';
 class MyPageScreen extends ConsumerStatefulWidget {
   const MyPageScreen({super.key});
 
+  static const routeURL = "/mypage";
+  static const routeName = 'mypage';
+
   @override
   ConsumerState<ConsumerStatefulWidget> createState() => _MyPageScreenState();
 }

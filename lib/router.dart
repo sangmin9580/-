@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:project/common/view/consent_screen.dart';
 import 'package:project/common/view/main_navigation_screen.dart';
 import 'package:project/common/viewmodel/main_navigation_vm.dart';
+import 'package:project/mypage/view/mypage_screen.dart';
 
 import 'package:project/professor/view/professor_navigation_screen.dart';
 
@@ -12,6 +13,7 @@ final routerProvider = Provider.family<GoRouter, bool>(
     return GoRouter(
       // isFirstRun이 true이면 동의 화면의 경로를, 아니면 메인 화면의 경로를 초기 위치로 설정합니다.
       initialLocation: isFirstRun ? ConsentScreen.routerURL : "/home",
+      debugLogDiagnostics: true, // 디버그 로깅 활성화
       routes: [
         // 동의 화면에 해당하는 GoRoute 추가 (ConsentScreen 구현 필요)
         GoRoute(

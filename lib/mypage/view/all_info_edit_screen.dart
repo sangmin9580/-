@@ -5,58 +5,68 @@ import 'package:intl/intl.dart';
 import 'package:project/constants/default.dart';
 import 'package:project/constants/gaps.dart';
 import 'package:project/constants/sizes.dart';
-import 'package:project/mypage/view/addpet_confirm_screen.dart';
-
 import 'package:project/mypage/viewmodel/pet_info_vm.dart';
+import 'package:project/mypage/widgets/avatar.dart';
+import 'package:project/mypage/widgets/dogbreedpicker.dart';
+import 'package:project/mypage/widgets/fixbutton.dart';
 
-import 'package:project/mypage/widgets/nextbutton.dart';
-
-class AddPetInfoScreen extends ConsumerStatefulWidget {
-  const AddPetInfoScreen({super.key});
+class AllinfoEditScreen extends ConsumerStatefulWidget {
+  const AllinfoEditScreen({super.key});
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() =>
-      _AddPetKindScreenState();
+      _AllinfoEditScreenState();
 }
 
-class _AddPetKindScreenState extends ConsumerState<AddPetInfoScreen> {
+void _onScaffoldTap(BuildContext context) {
+  FocusScope.of(context).unfocus();
+}
+
+class _AllinfoEditScreenState extends ConsumerState<AllinfoEditScreen> {
+  late final TextEditingController _nameEditingController;
+  late final TextEditingController _breedEditingController;
   late final TextEditingController _birthDateController;
   late final TextEditingController _genderController;
   late final TextEditingController _neuteredController;
   late final TextEditingController _weightController;
 
-  final List<String> genders = ['남', '여'];
-  final List<String> neuteredOptions = ['예', '아니오'];
-
-  late final viewModel = ref.read(addPetViewModelProvider.notifier);
-  late final model = ref.watch(addPetViewModelProvider);
+  late final petInfoNotifier = ref.watch(addPetViewModelProvider.notifier);
+  late final petInfo = ref.read(addPetViewModelProvider);
 
   @override
   void initState() {
     super.initState();
-
-    final currentModel = ref.read(addPetViewModelProvider);
-
-    // 각 컨트롤러의 초기값을 모델의 현재 상태에 기반하여 설정합니다.
+    _nameEditingController = TextEditingController(text: petInfo.name);
+    _breedEditingController = TextEditingController(text: petInfo.breed);
     _birthDateController = TextEditingController(
-      text: DateFormat('yyyy-MM-dd').format(
-        currentModel.birthDate,
-      ),
+      text: DateFormat('yyyy-MM-dd').format(petInfo.birthDate),
     );
 
-    _genderController = TextEditingController(
-      text: currentModel.gender.isNotEmpty ? currentModel.gender : '성별 선택',
-    );
-
+    _genderController = TextEditingController(text: petInfo.gender);
     _neuteredController = TextEditingController(
-      text: currentModel.isNeutered != null
-          ? (currentModel.isNeutered! ? '예' : '아니오')
+      text: petInfo.isNeutered != null
+          ? (petInfo.isNeutered! ? '예' : '아니오')
           : '중성화 여부 선택',
     );
 
-    _weightController = TextEditingController(
-      text: currentModel.weight > 0 ? currentModel.weight.toString() : '',
+    _weightController = TextEditingController(text: "${petInfo.weight}");
+  }
+
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? pickedDate = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(), // 초기 선택 날짜를 현재 날짜로 설정
+      firstDate: DateTime(2000), // 선택 가능한 가장 이른 날짜
+      lastDate: DateTime.now(), // 선택 가능한 가장 늦은 날짜
     );
+    if (pickedDate != null) {
+      // 사용자가 날짜를 선택한 경우
+      _birthDateController.text = DateFormat('yyyy-MM-dd')
+          .format(pickedDate); // 날짜 포맷을 'yyyy-MM-dd' 형태로 지정하여 텍스트 필드 업데이트
+      ref
+          .read(addPetViewModelProvider.notifier)
+          .updateBirthDate(pickedDate); // ViewModel의 상태 업데이트
+    }
   }
 
   void _showGenderDialog() {
@@ -70,7 +80,7 @@ class _AddPetKindScreenState extends ConsumerState<AddPetInfoScreen> {
               onPressed: () {
                 // 성별 '남'을 선택했을 때의 처리
                 _genderController.text = '남'; // TextField의 텍스트 업데이트
-                viewModel.updateGender('남'); // ViewModel의 상태 업데이트
+                petInfoNotifier.updateGender('남'); // ViewModel의 상태 업데이트
                 Navigator.pop(context); // 다이얼로그 닫기
               },
               child: const Text('남'),
@@ -79,7 +89,7 @@ class _AddPetKindScreenState extends ConsumerState<AddPetInfoScreen> {
               onPressed: () {
                 // 성별 '여'를 선택했을 때의 처리
                 _genderController.text = '여'; // TextField의 텍스트 업데이트
-                viewModel.updateGender('여'); // ViewModel의 상태 업데이트
+                petInfoNotifier.updateGender('여'); // ViewModel의 상태 업데이트
                 Navigator.pop(context); // 다이얼로그 닫기
               },
               child: const Text('여'),
@@ -101,7 +111,7 @@ class _AddPetKindScreenState extends ConsumerState<AddPetInfoScreen> {
               onPressed: () {
                 // 중성화 '예'를 선택했을 때의 처리
                 _neuteredController.text = '예'; // TextField의 텍스트 업데이트
-                viewModel.updateNeutered(true); // ViewModel의 상태 업데이트
+                petInfoNotifier.updateNeutered(true); // ViewModel의 상태 업데이트
                 Navigator.pop(context); // 다이얼로그 닫기
               },
               child: const Text('예'),
@@ -110,7 +120,7 @@ class _AddPetKindScreenState extends ConsumerState<AddPetInfoScreen> {
               onPressed: () {
                 // 중성화 '아니오'를 선택했을 때의 처리
                 _neuteredController.text = '아니오'; // TextField의 텍스트 업데이트
-                viewModel.updateNeutered(false); // ViewModel의 상태 업데이트
+                petInfoNotifier.updateNeutered(false); // ViewModel의 상태 업데이트
                 Navigator.pop(context); // 다이얼로그 닫기
               },
               child: const Text('아니오'),
@@ -121,38 +131,14 @@ class _AddPetKindScreenState extends ConsumerState<AddPetInfoScreen> {
     );
   }
 
-  Future<void> _selectDate(BuildContext context) async {
-    final DateTime? pickedDate = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now(), // 초기 선택 날짜를 현재 날짜로 설정
-      firstDate: DateTime(2000), // 선택 가능한 가장 이른 날짜
-      lastDate: DateTime.now(), // 선택 가능한 가장 늦은 날짜
-    );
-    if (pickedDate != null) {
-      // 사용자가 날짜를 선택한 경우
-      _birthDateController.text = DateFormat('yyyy-MM-dd')
-          .format(pickedDate); // 날짜 포맷을 'yyyy-MM-dd' 형태로 지정하여 텍스트 필드 업데이트
-      viewModel.updateBirthDate(pickedDate); // ViewModel의 상태 업데이트
-    }
-  }
-
-  void _onNextTap() {
-    if (ref.read(addPetViewModelProvider.notifier).isFormValid) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => const AddPetConfirmScreen(),
-        ),
-      );
-    }
-  }
-
-  void _onScaffoldTap() {
-    FocusScope.of(context).unfocus();
+  void onFixButtonTap() {
+    Navigator.pop(context);
   }
 
   @override
   void dispose() {
+    _nameEditingController.dispose();
+    _breedEditingController.dispose();
     _birthDateController.dispose();
     _genderController.dispose();
     _neuteredController.dispose();
@@ -163,11 +149,11 @@ class _AddPetKindScreenState extends ConsumerState<AddPetInfoScreen> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: _onScaffoldTap,
+      onTap: () => _onScaffoldTap(context),
       child: Scaffold(
         appBar: AppBar(
           title: const Text(
-            "강아지 추가",
+            "강아지 정보 수정",
             style: appbarTitleStyle,
           ),
           centerTitle: true,
@@ -185,42 +171,66 @@ class _AddPetKindScreenState extends ConsumerState<AddPetInfoScreen> {
               left: horizontalPadding,
               right: horizontalPadding,
               top: verticalPadding,
-              bottom: verticalPadding,
+              bottom: Sizes.size96,
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  "기본적인 정보를 알려주세요",
-                  style: TextStyle(
-                    fontSize: Sizes.size20,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                Text(
-                  "최대한 정확하게 작성부탁드립니다",
-                  style: TextStyle(
-                    fontSize: Sizes.size14,
-                    color: Colors.grey.shade500,
-                  ),
+                const Align(
+                  alignment: Alignment.center,
+                  child: Avatar(),
                 ),
                 Gaps.v32,
+                const Text("이름"),
+                Gaps.v10,
+                TextField(
+                  controller: _nameEditingController,
+                  onChanged: (value) => ref
+                      .read(addPetViewModelProvider.notifier)
+                      .updateName(value),
+                ),
+                Gaps.v32,
+                const Text("견종"),
+                Gaps.v10,
+                TextField(
+                  controller: _breedEditingController,
+                  decoration: const InputDecoration(
+                    hintText: "견종을 선택하세요",
+                  ),
+                  readOnly: true, // 견종 선택기를 사용하기 때문에 읽기 전용으로 설정합니다.
+                  onTap: () async {
+                    // 견종 선택기를 표시하고, 사용자가 선택한 견종으로 상태를 업데이트합니다.
+                    final String? pickedBreed =
+                        await showModalBottomSheet<String>(
+                      context: context,
+                      builder: (context) => const DogBreedPicker(),
+                    );
+                    if (pickedBreed != null) {
+                      _breedEditingController.text = pickedBreed;
+                      ref
+                          .read(addPetViewModelProvider.notifier)
+                          .updateBreed(pickedBreed);
+                    }
+                  },
+                ),
+                Gaps.v32,
+                const Text("생년월일"),
                 Gaps.v10,
                 TextField(
                   controller: _birthDateController,
                   readOnly: true,
                   decoration: const InputDecoration(
-                    labelText: '생년월일',
                     suffixIcon: Icon(Icons.calendar_today),
                   ),
                   onTap: () => _selectDate(context),
                 ),
                 Gaps.v32,
+                const Text("성별"),
+                Gaps.v10,
                 TextField(
                   controller: _genderController,
                   readOnly: true,
                   decoration: const InputDecoration(
-                    labelText: '성별',
                     suffixIcon: Icon(Icons.arrow_drop_down),
                   ),
                   onTap: () {
@@ -228,11 +238,12 @@ class _AddPetKindScreenState extends ConsumerState<AddPetInfoScreen> {
                   },
                 ),
                 Gaps.v32,
+                const Text("중성화 수술 여부"),
+                Gaps.v10,
                 TextField(
                   controller: _neuteredController,
                   readOnly: true,
                   decoration: const InputDecoration(
-                    labelText: '중성화 여부',
                     suffixIcon: Icon(Icons.arrow_drop_down),
                   ),
                   onTap: () {
@@ -240,30 +251,25 @@ class _AddPetKindScreenState extends ConsumerState<AddPetInfoScreen> {
                   },
                 ),
                 Gaps.v32,
+                const Text("몸무게"),
+                Gaps.v10,
                 TextField(
                   controller: _weightController,
                   keyboardType: TextInputType.number,
                   decoration: const InputDecoration(
-                    labelText: '무게 (kg)',
+                    labelText: '(kg)',
                   ),
                   onChanged: (value) {
                     final double? weight = double.tryParse(value);
                     if (weight != null) {
-                      viewModel.updateWeight(weight);
-                      setState(() {});
+                      petInfoNotifier.updateWeight(weight);
                     }
                   },
                 ),
-                Gaps.v96,
-                Gaps.v60,
+                Gaps.v20,
                 GestureDetector(
-                  onTap: _onNextTap,
-                  child: NextButton(
-                    disabled:
-                        !ref.read(addPetViewModelProvider.notifier).isFormValid,
-                    text: "다음",
-                  ),
-                ),
+                    onTap: () => onFixButtonTap(),
+                    child: const FixButton(disabled: false)),
               ],
             ),
           ),

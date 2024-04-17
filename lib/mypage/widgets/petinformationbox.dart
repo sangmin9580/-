@@ -8,16 +8,16 @@ class PetInformationBox extends StatelessWidget {
     super.key,
     required this.name,
     required this.age,
-    required this.kind,
+    required this.breed,
     required this.bio,
     required this.weight,
   });
 
   final String name;
-  final int age;
-  final String kind;
+  final String age;
+  final String breed;
   final String bio;
-  final String weight;
+  final double weight;
 
   @override
   Widget build(BuildContext context) {
@@ -29,9 +29,11 @@ class PetInformationBox extends StatelessWidget {
       endIndent: 3,
     );
     return Padding(
-      padding: const EdgeInsets.symmetric(
-        vertical: verticalPadding,
-        horizontal: horizontalPadding,
+      padding: const EdgeInsets.only(
+        top: Sizes.size5,
+        bottom: Sizes.size5,
+        left: horizontalPadding,
+        right: horizontalPadding,
       ),
       child: Container(
         width: MediaQuery.of(context).size.width,
@@ -67,9 +69,9 @@ class PetInformationBox extends StatelessWidget {
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          Text(kind),
+                          Text(breed),
                           verticalDivider,
-                          Text("$age살"),
+                          Text(age),
                           verticalDivider,
                           Text(bio),
                           verticalDivider,

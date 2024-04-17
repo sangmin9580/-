@@ -5,6 +5,7 @@ import 'package:project/constants/default.dart';
 import 'package:project/constants/gaps.dart';
 import 'package:project/constants/sizes.dart';
 import 'package:project/mypage/view/addpet_kind_screen.dart';
+import 'package:project/mypage/viewmodel/pet_info_vm.dart';
 import 'package:project/mypage/widgets/avatar.dart';
 import 'package:project/mypage/widgets/nextbutton.dart';
 
@@ -46,6 +47,8 @@ class _AddPetNameScreenState extends ConsumerState<AddPetNameScreen> {
     final disabled = _errorText != null;
 
     if (!disabled) {
+      ref.read(addPetViewModelProvider.notifier).updateName(_name);
+
       Navigator.push(
         context,
         MaterialPageRoute(
@@ -76,10 +79,15 @@ class _AddPetNameScreenState extends ConsumerState<AddPetNameScreen> {
             style: appbarTitleStyle,
           ),
           centerTitle: true,
-          actions: const [
-            FaIcon(
-              FontAwesomeIcons.house,
-              size: Sizes.size20,
+          actions: [
+            GestureDetector(
+              onTap: () => ref
+                  .read(addPetViewModelProvider.notifier)
+                  .onTapHomeIcon(context),
+              child: const FaIcon(
+                FontAwesomeIcons.house,
+                size: Sizes.size20,
+              ),
             ),
             Gaps.h10,
           ],
@@ -122,7 +130,10 @@ class _AddPetNameScreenState extends ConsumerState<AddPetNameScreen> {
               const Spacer(), // 나머지 공간을 모두 차지하여 버튼을 밀어내립니다.
               GestureDetector(
                 onTap: _onNextTap,
-                child: NextButton(disabled: _errorText != null),
+                child: NextButton(
+                  disabled: _errorText != null,
+                  text: "다음",
+                ),
               ),
             ],
           ),

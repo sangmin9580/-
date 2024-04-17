@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:project/common/model/main_navigation_model.dart';
 
@@ -26,6 +27,19 @@ class MainNavigationViewModel extends Notifier<MainNavigationModel> {
       default:
         setTabBarSelectedIndex(0);
     }
+  }
+
+  void goToHomePage(BuildContext context) {
+    setNavigationBarSelectedIndex(0);
+    Navigator.of(context).popUntil((route) => route.isFirst);
+  }
+
+  void goToConsultingPage() {
+    setNavigationBarSelectedIndex(2);
+  }
+
+  void goToMyPage() {
+    setNavigationBarSelectedIndex(3); // MyPage의 인덱스를 3으로 설정
   }
 
   void setTabBarSelectedIndex(int index) {

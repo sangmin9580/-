@@ -1,12 +1,21 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:project/common/view/main_navigation_screen.dart';
 import 'package:project/common/viewmodel/main_navigation_vm.dart';
 import 'package:project/constants/default.dart';
 import 'package:project/constants/gaps.dart';
 import 'package:project/constants/sizes.dart';
+import 'package:project/consultationcase/view/pet_select_screen.dart';
+import 'package:project/consultationcase/viewmodel/consultingexample_vm.dart';
+import 'package:project/mypage/model/pet_model.dart';
+import 'package:project/mypage/viewmodel/pet_info_vm.dart';
+import 'package:project/mypage/viewmodel/pet_select_vm.dart';
+import 'package:project/mypage/widgets/petinformationbox.dart';
 
 class ConsultationWritingScreen extends ConsumerStatefulWidget {
   const ConsultationWritingScreen({super.key});
@@ -24,10 +33,17 @@ class _ConsultationWritingScreenState
   late final TextEditingController _contentEditingController =
       TextEditingController();
 
+  final TextEditingController _expertTypeController = TextEditingController();
+  final TextEditingController _consultationTopicController =
+      TextEditingController();
+
   String _title = " ";
   String _content = "";
   bool _titleisWriting = false;
   bool _contentisWriting = false;
+  File? _image;
+  final ImagePicker _picker = ImagePicker();
+  final List<File> _images = [];
 
   // 위치 조정을 위한 key
   final GlobalKey _titleKey = GlobalKey();
@@ -35,6 +51,17 @@ class _ConsultationWritingScreenState
   @override
   void initState() {
     super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      // 상담글 작성 화면 로드 시 반려동물 선택 화면으로 이동
+
+      if (ref
+              .read(mainNavigationViewModelProvider)
+              .navigationBarSelectedIndex ==
+          2) {
+        _navigateToPetEditScreen(context);
+      }
+    });
 
     _titleEditingController.addListener(() {
       _title = _titleEditingController.text;
@@ -44,6 +71,25 @@ class _ConsultationWritingScreenState
     _contentEditingController.addListener(() {
       _content = _contentEditingController.text;
       setState(() {});
+    });
+  }
+
+  Future<void> _pickImage() async {
+    if (_images.length >= 5) {
+      // 이미지가 5장을 초과하면 추가하지 않음
+      return;
+    }
+    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      setState(() {
+        _images.add(File(pickedFile.path));
+      });
+    }
+  }
+
+  void _removeImage(int index) {
+    setState(() {
+      _images.removeAt(index);
     });
   }
 
@@ -62,9 +108,15 @@ class _ConsultationWritingScreenState
   }
 
   void _onBackbuttonTap() async {
+    final expertType = ref.read(expertTypeProvider);
+    final consultationTopic = ref.read(consultationTopicProvider);
     // 제목이나 내용에 글자가 있는지 확인
     bool hasContent = _title.trim().isNotEmpty || _content.trim().isNotEmpty;
 
+    ///아래 3개는 등록하기를 할떄도 마찬가지로 똑같이 써야함.
+    ref.read(consultationProcessStartedProvider.notifier).state = false;
+    expertType == null;
+    consultationTopic == null;
     // 내용이 있다면 모달 창을 띄우고, 사용자의 선택을 기다림
     if (hasContent) {
       bool? result = await showDialog<bool>(
@@ -131,15 +183,179 @@ class _ConsultationWritingScreenState
     });
   }
 
+// 상담글 작성 처음 들어오면 나오는 모달창(수의사 훈련사 탭)
+  void _showExpertSelectionModal(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        // 여기에 모달의 내용을 구성합니다.
+        return SizedBox(
+          height: 300,
+          child: Padding(
+            padding: const EdgeInsets.only(
+              top: Sizes.size20,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                const Text(
+                  "상담을 원하시는 전문가를",
+                  style: appbarTitleStyle,
+                ),
+                const Text(
+                  "선택해주세요.",
+                  style: appbarTitleStyle,
+                ),
+                Gaps.v20,
+                ListTile(
+                  title: const Center(
+                    child: Text(
+                      '수의사',
+                      style: TextStyle(
+                        color: Color(0xFFC78D20),
+                        fontWeight: FontWeight.w600,
+                        fontSize: Sizes.size20,
+                      ),
+                    ),
+                  ),
+                  onTap: () {
+                    // 수의사 선택 로직 처리
+                    ref.read(expertTypeProvider.notifier).state = '수의사';
+                    Navigator.pop(context); // 현재 모달 닫기
+                    _showConsultationTopicSelectionModal(
+                        context, '수의사'); // 새로운 모달 띄우기
+                  },
+                ),
+                ListTile(
+                  title: const Center(
+                    child: Text(
+                      '훈련사',
+                      style: TextStyle(
+                        color: Color(0xFFC78D20),
+                        fontWeight: FontWeight.w600,
+                        fontSize: Sizes.size20,
+                      ),
+                    ),
+                  ),
+                  onTap: () {
+                    // 훈련사 선택 로직 처리
+                    ref.read(expertTypeProvider.notifier).state = '훈련사';
+                    Navigator.pop(context); // 현재 모달 닫기
+                    _showConsultationTopicSelectionModal(
+                        context, '훈련사'); // 새로운 모달 띄우기
+                  },
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+// 수의사나 전문가 탭하면 나오는 모달창
+  void _showConsultationTopicSelectionModal(
+      BuildContext context, String expertType) {
+    List<String> topics = expertType == "수의사"
+        ? [
+            "예방접종",
+            "건강관리 상담",
+            "알러지",
+            "피부질환",
+            "내분비질환",
+            "노령견의 건강관리",
+            "영양",
+            "일상생활의 편의제공",
+            "응급상황",
+            "사고예방",
+            "출산관련 상담 및 건강관리",
+            "기타"
+          ]
+        : ["순종훈련", "문제행동 교정", "고급 훈련", "사회화 훈련", "분리불안해소", "이동 및 여행 훈련", "기타"];
+
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return ListView.builder(
+          itemCount: topics.length,
+          itemBuilder: (context, index) {
+            return ListTile(
+              title: Text(topics[index]),
+              onTap: () {
+                ref.read(consultationTopicProvider.notifier).state =
+                    topics[index];
+                Navigator.pop(context); // 모달창 닫기
+              },
+            );
+          },
+        );
+      },
+    );
+  }
+
+  void _navigateToPetEditScreen(BuildContext context) {
+    // 선택된 반려동물 인덱스 확인
+    final petSelect = ref.read(petSelectionStateProvider.notifier).state;
+    // 반려동물이 선택되었는지 확인
+    final isPetSelected = petSelect == true;
+
+    // 선택된 반려동물이 있으면 정보 표시 및 다음 단계 로직 진행
+
+    // PetEditScreen으로 이동. 반려동물 선택 완료 후, 전문가 선택 모달창을 표시하도록 구현 예정
+
+    if (isPetSelected) {
+      // 선택된 반려동물 정보를 사용하여 로직 진행
+      // 예: 전문가 선택 모달창 표시
+      _showExpertSelectionModal(context);
+    } else {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const PetEditScreen()),
+      ).then((_) {
+        // PetEditScreen에서 돌아온 후의 로직. 예: 전문가 선택 모달창 표시
+        if (ref.read(consultationProcessStartedProvider)) {
+          _showExpertSelectionModal(context);
+        }
+      });
+    }
+  }
+
+  void _onPetBoxTap() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const PetEditScreen(),
+      ),
+    );
+  }
+
   @override
   void dispose() {
     _titleEditingController.dispose();
     _contentEditingController.dispose();
+    _expertTypeController.dispose();
+    _consultationTopicController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    // 선택된 반려동물의 인덱스를 가져옵니다.
+    final selectedPetIndex = ref.watch(petEditViewModelProvider);
+    final petList = ref.watch(petListProvider);
+    final expertType = ref.watch(expertTypeProvider);
+    final consultationTopic = ref.watch(consultationTopicProvider);
+
+    PetModel? selectedPet;
+
+    if (selectedPetIndex >= 0 && selectedPetIndex < petList.length) {
+      selectedPet = petList[selectedPetIndex];
+    }
+
+    // initState에서 설정했던 로직을 여기서 처리
+    _expertTypeController.text = expertType ?? '';
+    _consultationTopicController.text = consultationTopic ?? '';
+
     return GestureDetector(
       onTap: _onbodyTap,
       child: Scaffold(
@@ -193,7 +409,79 @@ class _ConsultationWritingScreenState
               horizontal: horizontalPadding,
             ),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                const Text(
+                  "전문가 상담",
+                  style: TextStyle(
+                    fontSize: Sizes.size18,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                Gaps.v10,
+                if (selectedPet != null)
+                  GestureDetector(
+                    onTap: _onPetBoxTap,
+                    child: PetInformationBox(
+                      name: selectedPet.name,
+                      age: selectedPet.getAge(),
+                      breed: selectedPet.breed,
+                      bio: selectedPet.gender,
+                      weight: selectedPet.weight,
+                    ),
+                  ),
+
+                Gaps.v10,
+                const Text("전문가와 상담주제를 선택해주세요"),
+                Gaps.v20,
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: _expertTypeController,
+                        readOnly: true, // 사용자 입력을 막고 탭하여 모달창을 표시하도록 합니다.
+                        decoration: InputDecoration(
+                          labelText: '전문가 유형',
+                          suffixIcon: IconButton(
+                            icon: const Icon(Icons.arrow_drop_down),
+                            onPressed: () {
+                              _showExpertSelectionModal(context);
+                            },
+                          ),
+                        ),
+                      ),
+                    ),
+                    Gaps.h16, // 상담 주제 선택 필드
+                    Expanded(
+                      child: TextField(
+                        controller: _consultationTopicController,
+                        readOnly: true, // 사용자 입력을 막고 탭하여 모달창을 표시하도록 합니다.
+                        decoration: InputDecoration(
+                          labelText: '상담 주제',
+                          suffixIcon: IconButton(
+                            icon: const Icon(Icons.arrow_drop_down),
+                            onPressed: () {
+                              // 전문가 유형이 선택되었는지 확인하고, 선택된 유형에 따라 주제 선택 모달을 표시합니다.
+                              final expertType = ref.read(expertTypeProvider);
+                              if (expertType != null) {
+                                _showConsultationTopicSelectionModal(
+                                    context, expertType);
+                              } else {
+                                // 사용자에게 먼저 전문가 유형을 선택하도록 안내합니다.
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('먼저 전문가 유형을 선택해주세요.'),
+                                  ),
+                                );
+                              }
+                            },
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                Gaps.v20,
                 // 제목(10자 이상*)과 textfield
                 Row(
                   key: _titleKey,
@@ -266,7 +554,7 @@ class _ConsultationWritingScreenState
                   ],
                 ),
                 Gaps.v10,
-                // 내용(200자 이상*)과 textfield
+
                 TextField(
                   onTap: () => _ontitleStartWriting(_titleKey),
                   controller: _titleEditingController,
@@ -282,7 +570,7 @@ class _ConsultationWritingScreenState
                         const Text(
                           "내용",
                           style: TextStyle(
-                            fontSize: 20,
+                            fontSize: Sizes.size18,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -301,7 +589,7 @@ class _ConsultationWritingScreenState
                         const Text(
                           "*",
                           style: TextStyle(
-                            fontSize: Sizes.size20,
+                            fontSize: Sizes.size18,
                             color: Color(
                               0xFFC78D20,
                             ),
@@ -342,6 +630,43 @@ class _ConsultationWritingScreenState
                       ),
                   ],
                 ),
+                Gaps.v10,
+                if (_image != null)
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Image.file(_image!),
+                  ),
+                Wrap(
+                  children: _images.asMap().entries.map(
+                    (entry) {
+                      int index = entry.key;
+                      File image = entry.value;
+                      return Stack(
+                        alignment: Alignment.topRight,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.all(4.0),
+                            child: Image.file(
+                              image,
+                              width: 100,
+                              height: 100,
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.close),
+                            onPressed: () => _removeImage(index),
+                          ),
+                        ],
+                      );
+                    },
+                  ).toList(),
+                ),
+                ElevatedButton(
+                  onPressed: _pickImage,
+                  child: Text('이미지 추가 (${_images.length}/5)'),
+                ),
+                // 내용(200자 이상*)과 textfield
                 Gaps.v10,
                 TextField(
                   onTap: _oncontentStartWriting,

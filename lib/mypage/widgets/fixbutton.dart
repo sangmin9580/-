@@ -1,15 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:project/constants/sizes.dart';
 
-class NextButton extends StatelessWidget {
-  const NextButton({
+class FixButton extends StatelessWidget {
+  const FixButton({
     super.key,
     required this.disabled,
-    required this.text,
   });
 
   final bool disabled;
-  final String text;
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +25,7 @@ class NextButton extends StatelessWidget {
         ),
       ),
       child: Text(
-        text,
+        "수정하기",
         style: TextStyle(
           color: disabled ? Colors.grey.shade400 : Colors.white,
           fontSize: Sizes.size16,

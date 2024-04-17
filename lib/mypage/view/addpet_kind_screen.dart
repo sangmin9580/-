@@ -5,6 +5,7 @@ import 'package:project/constants/default.dart';
 import 'package:project/constants/gaps.dart';
 import 'package:project/constants/sizes.dart';
 import 'package:project/mypage/view/addpet_info_screen.dart';
+import 'package:project/mypage/viewmodel/pet_info_vm.dart';
 import 'package:project/mypage/widgets/dogbreedpicker.dart';
 import 'package:project/mypage/widgets/nextbutton.dart';
 
@@ -36,6 +37,7 @@ class _AddPetKindScreenState extends ConsumerState<AddPetKindScreen> {
     final disabled = _breedText == null || _breedText!.isEmpty;
 
     if (!disabled) {
+      ref.read(addPetViewModelProvider.notifier).updateBreed(_breedText!);
       Navigator.push(
         context,
         MaterialPageRoute(
@@ -76,10 +78,15 @@ class _AddPetKindScreenState extends ConsumerState<AddPetKindScreen> {
           style: appbarTitleStyle,
         ),
         centerTitle: true,
-        actions: const [
-          FaIcon(
-            FontAwesomeIcons.house,
-            size: Sizes.size20,
+        actions: [
+          GestureDetector(
+            onTap: () => ref
+                .read(addPetViewModelProvider.notifier)
+                .onTapHomeIcon(context),
+            child: const FaIcon(
+              FontAwesomeIcons.house,
+              size: Sizes.size20,
+            ),
           ),
           Gaps.h10,
         ],
@@ -118,6 +125,7 @@ class _AddPetKindScreenState extends ConsumerState<AddPetKindScreen> {
               onTap: _onNextTap,
               child: NextButton(
                 disabled: _breedText == null || _breedText!.isEmpty,
+                text: "다음",
               ),
             ),
           ],
