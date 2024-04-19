@@ -1,162 +1,547 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:project/constants/default.dart';
-
+import 'package:project/constants/gaps.dart';
 import 'package:project/constants/sizes.dart';
-import 'package:project/professor/view/professor_navigation_screen.dart';
-import 'package:project/professor/widgets/persistenttabbar/subpersistenttabbar.dart';
-
-import '../widgets/item.dart';
+import 'package:project/professor/widgets/map_sample.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ProfessorScreen extends ConsumerStatefulWidget {
   const ProfessorScreen({super.key});
+
+  static const routerURL = '/professor';
+  static const routerName = 'professor';
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() =>
       _ProfessorScreenState();
 }
 
-class _ProfessorScreenState extends ConsumerState<ProfessorScreen>
-    with TickerProviderStateMixin {
-  late final TabController _mainTabController;
-  late final TabController _subTabController;
-
-  int _subSelectedIndex = 0;
-  // late final TabController _vetclassTabController;
-  // late final TabController _trainerclassTabController; // 추가된 컨트롤러
-
-  // final List<GlobalKey> _vetItemKeys =
-  //     List.generate(6, (index) => GlobalKey()); // 위치를 조정하기 위한 globalkey
-
-  @override
-  void initState() {
-    super.initState();
-    _mainTabController = TabController(length: 2, vsync: this);
-    _subTabController = TabController(length: 2, vsync: this);
-
-    // _vetclassTabController.addListener(
-    //   () {
-    //     if (_vetclassTabController.indexIsChanging) {
-    //       switch (_vetclassTabController.index) {
-    //         case 0: // '일반 진료 및 예방 접종' 탭의 경우
-    //           _scrollToItem(_vetItemKeys[0]);
-    //           break;
-    //         case 1: // "특수질병관리" 탭의 경우
-    //           _scrollToItem(_vetItemKeys[1]);
-    //           break;
-    //         case 2: // '노령견관리' 탭의 경우
-    //           _scrollToItem(_vetItemKeys[2]);
-    //           break;
-    //         case 3: // '응급처치' 탭의 경우
-    //           _scrollToItem(_vetItemKeys[3]);
-    //           break;
-    //         case 4: // '생식 건강' 탭의 경우
-    //           _scrollToItem(_vetItemKeys[4]);
-    //           break;
-    //         case 5: // '기타' 탭의 경우
-    //           _scrollToItem(_vetItemKeys[5]);
-    //           break;
-    //       }
-    //     }
-    //   },
-    // );
-
-    _mainTabController.addListener(() {
-      if (!mounted) return;
-      setState(() {
-        // 여기서는 _mainTabController.index의 변경을 감지하므로
-        // 필요한 경우 관련 로직을 추가할 수 있습니다.
-      });
-    });
-
-    _subTabController.addListener(() {
-      if (!mounted) return;
-
-      setState(() {
-        _subSelectedIndex = _subTabController.index;
-      });
-    });
+void _launchURL() async {
+  const url = 'https://map.naver.com/v5/search/서울특별시 서초구 반포대로 18길 36';
+  final uri = Uri.parse(url);
+  print("dafdsfa");
+  if (await canLaunchUrl(uri)) {
+    await launchUrl(uri);
+  } else {
+    throw 'Could not launch $uri';
   }
+}
 
-  void _gotoProfessorSearchScreen() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => const ProfessorNavigationScreen(),
-      ),
-    );
-  }
+void _callOffice() {
+  // 전화 거는 로직
+}
+void _showBookingModal(BuildContext context) {
+  showModalBottomSheet(
+    context: context,
+    builder: (BuildContext context) {
+      return StatefulBuilder(
+        builder: (BuildContext context, StateSetter setState) {
+          const String selectedOption = ""; // 사용자가 선택한 예약 옵션을 저장할 변수
+          // ... 기타 필요한 상태 변수를 추가
 
-  @override
-  void dispose() {
-    _mainTabController.dispose();
-    _subTabController.dispose();
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              const ListTile(
+                title: Text('상담 종류 선택'),
+                // ... 여기에 상담 종류를 선택할 수 있는 위젯 추가
+              ),
+              const ListTile(
+                title: Text('날짜 선택'),
+                // ... 여기에 날짜를 선택할 수 있는 위젯 추가
+              ),
+              const ListTile(
+                title: Text('시간 선택'),
+                // ... 여기에 시간을 선택할 수 있는 위젯 추가
+              ),
+              ElevatedButton(
+                onPressed: selectedOption != null // 모든 선택이 완료되었는지 여부
+                    ? () {
+                        // 다음 버튼의 액션을 처리
+                      }
+                    : null, // 모든 선택이 완료되지 않았다면 버튼 비활성화
+                child: const Text('다음'),
+              ),
+            ],
+          );
+        },
+      );
+    },
+  );
+}
 
-    super.dispose();
-  }
-
+class _ProfessorScreenState extends ConsumerState<ProfessorScreen> {
   @override
   Widget build(BuildContext context) {
-    return NestedScrollView(
-      headerSliverBuilder: (context, innerBoxIsScrolled) {
-        return [
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: horizontalPadding,
-              ),
-              child: TabBar(
-                indicator: const BoxDecoration(
-                  border: Border(
-                    bottom: BorderSide(color: Colors.transparent),
-                  ),
-                ),
-                controller: _mainTabController,
-                padding: const EdgeInsets.symmetric(
-                  vertical: Sizes.size3,
-                ),
-                indicatorColor: Colors.transparent,
-                splashFactory: NoSplash.splashFactory,
-                tabs: [
-                  Container(
-                    alignment: Alignment.center,
-                    height: Sizes.size40,
-                    width: MediaQuery.of(context).size.width * 0.4,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(
-                        10,
+    return MaterialApp(
+      home: DefaultTabController(
+        length: 4, // 탭의 개수
+        child: SafeArea(
+          child: Scaffold(
+            body: NestedScrollView(
+              headerSliverBuilder:
+                  (BuildContext context, bool innerBoxIsScrolled) {
+                return <Widget>[
+                  SliverAppBar(
+                    elevation: 1,
+                    expandedHeight: 300.0,
+                    floating: false,
+                    pinned: true,
+                    flexibleSpace: FlexibleSpaceBar(
+                      centerTitle: true,
+                      title: LayoutBuilder(
+                        builder:
+                            (BuildContext context, BoxConstraints constraints) {
+                          var top = constraints.biggest.height;
+                          Widget expandedTitle = Opacity(
+                            opacity: top > 120.0 ? 1.0 : 0.0,
+                            child: const Padding(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: horizontalPadding,
+                              ),
+                              child: Text(
+                                "<전문 수의사 출신> 서울대 수의사, 경력 18년",
+                                style: appbarTitleStyle,
+                              ),
+                            ),
+                          );
+                          // 앱 바가 축소됐을 때 보여줄 텍스트
+                          Widget collapsedTitle = AnimatedOpacity(
+                            opacity: top <= 120.0 ? 1.0 : 0.0,
+                            duration: const Duration(milliseconds: 300),
+                            // 앱 바가 축소됐을 때, 글자가 하단에 위치하도록 Padding을 조정
+                            child: const Text("윤상민 전문가"),
+                          );
+
+                          return Stack(
+                            children: <Widget>[
+                              // 배치를 위한 Stack 사용
+                              Align(
+                                alignment: Alignment.bottomCenter,
+                                child: expandedTitle,
+                              ),
+                              Align(
+                                alignment: Alignment.bottomCenter,
+                                child: collapsedTitle,
+                              ),
+                            ],
+                          );
+                        },
                       ),
-                      border: Border.all(
-                        width: 1,
+                      background: Image.network(
+                        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTdO_aQxZsKeLQhEo3Zmi9wS-Dt3J5JClYSti2g481Iu2wBeZv_vQyPsagLdTWeolgKikA&usqp=CAU",
+                        fit: BoxFit.cover,
                       ),
                     ),
-                    child: Text(
-                      "분야로 찾기",
+                  ),
+                  SliverPersistentHeader(
+                    delegate: _SliverAppBarDelegate(
+                      const TabBar(
+                        labelColor: Colors.black,
+                        labelStyle: TextStyle(
+                          fontWeight: FontWeight.w600,
+                        ),
+                        unselectedLabelColor: Colors.grey,
+                        tabs: [
+                          Tab(text: "전문가홈"),
+                          Tab(text: "전문가정보"),
+                          Tab(text: "상담사례"),
+                          Tab(text: "고객후기"),
+                        ],
+                      ),
+                    ),
+                    pinned: true,
+                  ),
+                ];
+              },
+              body: TabBarView(
+                children: [
+                  ListView(
+                    children: [
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          border: Border(
+                            top: BorderSide(
+                              color: Colors.grey.shade200,
+                            ),
+                            bottom: BorderSide(
+                              color: Colors.grey.shade200,
+                              width: 10,
+                            ),
+                          ),
+                        ),
+                        child: const Padding(
+                          padding: EdgeInsets.symmetric(
+                            vertical: Sizes.size10,
+                            horizontal: verticalPadding,
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "윤상민 수의사",
+                                style: TextStyle(
+                                  fontSize: Sizes.size24,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              Gaps.v20,
+                              Text(
+                                "성심 병원",
+                                style: TextStyle(
+                                  fontSize: Sizes.size16,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              Gaps.v10,
+                              Row(
+                                children: [
+                                  FaIcon(FontAwesomeIcons.map),
+                                  Gaps.h10,
+                                  Flexible(
+                                    child: Text(
+                                      "서울특별시 서초구 반포대로 18길 36(서초동, 서초센트럴 Ipark 오피스동) 17층)",
+                                      style: TextStyle(
+                                        fontSize: Sizes.size12,
+                                      ),
+                                    ),
+                                  )
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      Container(
+                        decoration: const BoxDecoration(
+                          color: Colors.white,
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: horizontalPadding,
+                            vertical: verticalPadding,
+                          ),
+                          child: Wrap(
+                            alignment: WrapAlignment.center,
+                            spacing: 8,
+                            runSpacing: 4,
+                            children: [
+                              const CertificationType(
+                                icon: FontAwesomeIcons.certificate,
+                                text: "수의사 자격증",
+                              ),
+                              const CertificationType(
+                                icon: FontAwesomeIcons.certificate,
+                                text: "수의사 자격증",
+                              ),
+                              const CertificationType(
+                                icon: FontAwesomeIcons.certificate,
+                                text: "수의사 자격증",
+                              ),
+                              const CertificationType(
+                                icon: FontAwesomeIcons.certificate,
+                                text: "수의사 자격증",
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: verticalPadding,
+                                ),
+                                child: Column(
+                                  children: [
+                                    const Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          "분야",
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                        Gaps.h10,
+                                        Flexible(
+                                          child: Text(
+                                            "tkdaflskdjflksdjflsjdlkhlsdjfljsldfjlsfjlsdjfljlfjalsjflsdjflsjdlfjsl",
+                                          ),
+                                        )
+                                      ],
+                                    ),
+                                    Gaps.v10,
+                                    const Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          "경력",
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                        Gaps.h10,
+                                        Flexible(
+                                          child: Text(
+                                              "tkdaflskdjflksdjflsjdlkhlsdjfljsldfjlsfjlsdjfljlfjalsjflsdjflsjdlfjsl"),
+                                        )
+                                      ],
+                                    ),
+                                    Gaps.v10,
+                                    const Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          "자격",
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                        Gaps.h10,
+                                        Flexible(
+                                          child: Text(
+                                              "tkdaflskdjflksdjflsjdlkhlsdjfljsldfjlsfjlsdjfljlfjalsjflsdjflsjdlfjsl"),
+                                        )
+                                      ],
+                                    ),
+                                    Gaps.v10,
+                                    const Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          "학력",
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                        Gaps.h10,
+                                        Flexible(
+                                          child: Text(
+                                              "tkdaflskdjflksdjflsjdlkhlsdjfljsldfjlsfjlsdjfljlfjalsjflsdjflsjdlfjsl"),
+                                        )
+                                      ],
+                                    ),
+                                    Gaps.v32,
+                                    Container(
+                                      alignment: Alignment.center,
+                                      decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(
+                                            10,
+                                          ),
+                                          border: Border.all(
+                                            color: Colors.grey.shade400,
+                                            width: 1,
+                                          )),
+                                      width: MediaQuery.of(context).size.width *
+                                          0.6,
+                                      height: Sizes.size48,
+                                      child: const Text("전문가정보 자세히 보기 >"),
+                                    ),
+                                  ],
+                                ),
+                              )
+                            ],
+                          ),
+                        ),
+                      ),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          border: Border(
+                            top: BorderSide(
+                              color: Colors.grey.shade200,
+                              width: 10,
+                            ),
+                            bottom: BorderSide(
+                              color: Colors.grey.shade200,
+                              width: 10,
+                            ),
+                          ),
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                          vertical: verticalPadding,
+                          horizontal: horizontalPadding,
+                        ),
+                        child: Column(
+                          children: [
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                const Text(
+                                  "상담사례",
+                                  style: TextStyle(
+                                    fontSize: Sizes.size16,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                Gaps.h5,
+                                Text(
+                                  "17",
+                                  style: TextStyle(
+                                    fontSize: Sizes.size18,
+                                    color: Colors.grey.shade500,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                Gaps.h3,
+                                FaIcon(
+                                  FontAwesomeIcons.chevronRight,
+                                  color: Colors.grey.shade400,
+                                  size: Sizes.size16,
+                                ),
+                              ],
+                            ),
+                            Gaps.v20,
+                            SizedBox(
+                              height: 120,
+                              child: ListView.separated(
+                                scrollDirection: Axis.horizontal,
+                                itemCount: 4,
+                                separatorBuilder: (context, index) {
+                                  return Gaps.h20;
+                                },
+                                itemBuilder: (context, index) {
+                                  if (index != 3) {
+                                    return const ProfessorConsultingBox();
+                                  } else {
+                                    return Container(
+                                      decoration: BoxDecoration(
+                                        color: Colors.grey.shade200,
+                                        borderRadius: BorderRadius.circular(
+                                          30,
+                                        ),
+                                      ), // 배경색 설정) ,
+                                      width: 100, // 적절한 너비 설정
+                                      height: 90,
+                                      margin: const EdgeInsets.all(8), // 여백 설정
+
+                                      child: const Center(
+                                        child: Text(
+                                          "더 많은 \n 상담사례보기\n >",
+                                          textAlign: TextAlign.center,
+                                        ),
+                                      ),
+                                    );
+                                  }
+                                },
+                              ),
+                            )
+                          ],
+                        ),
+                      ),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          border: Border(
+                            top: BorderSide(
+                              color: Colors.grey.shade200,
+                              width: 10,
+                            ),
+                            bottom: BorderSide(
+                              color: Colors.grey.shade200,
+                              width: 10,
+                            ),
+                          ),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: verticalPadding,
+                            horizontal: horizontalPadding,
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                "전문가과 직접 만나서 \n문제를 해결하세요",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: Sizes.size20,
+                                ),
+                              ),
+                              Gaps.v20,
+                              const Text(
+                                "성심 사랑 병원",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: Sizes.size16,
+                                ),
+                              ),
+                              Gaps.v16,
+                              FractionallySizedBox(
+                                widthFactor: 1,
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    ConstrainedBox(
+                                      constraints: BoxConstraints(
+                                        maxWidth:
+                                            MediaQuery.of(context).size.width *
+                                                0.5, // 화면 너비의 50%
+                                      ),
+                                      child: const Text(
+                                        "서울특별시 서초구 반포대로 18길 36(서초동, 서초센트럴 Ipark 오피스동) 17층)",
+                                        style:
+                                            TextStyle(fontSize: Sizes.size12),
+
+                                        softWrap: true, // 자동으로 줄바꿈
+                                      ),
+                                    ),
+                                    GestureDetector(
+                                      onTap: _launchURL,
+                                      child: const Text(
+                                        "네이버지도로 보기",
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Gaps.v40,
+                              const MapSample(),
+                              const SizedBox(
+                                height: 200,
+                              )
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const Center(child: Text("Tab 2 Content")),
+                  const Center(child: Text("Tab 3 Content")),
+                  const Center(child: Text("Tab 4 Content")),
+                ],
+              ),
+            ),
+            bottomNavigationBar: BottomAppBar(
+              color: Colors.grey.shade100,
+              height: Sizes.size60,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: <Widget>[
+                  TextButton(
+                    onPressed: () => _callOffice(),
+                    child: const Text(
+                      '사무실 전화',
                       style: TextStyle(
-                        fontSize:
-                            Theme.of(context).textTheme.titleMedium!.fontSize,
+                        color: Colors.black,
+                        fontSize: Sizes.size18,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
                   ),
-                  Container(
-                    alignment: Alignment.center,
-                    height: Sizes.size40,
-                    width: MediaQuery.of(context).size.width * 0.4,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(
-                        10,
-                      ),
-                      border: Border.all(
-                        width: 1,
-                      ),
-                    ),
-                    child: Text(
-                      "지도로 찾기",
+                  TextButton(
+                    onPressed: () => _showBookingModal(context),
+                    child: const Text(
+                      '상담 예약하기',
                       style: TextStyle(
-                        fontSize:
-                            Theme.of(context).textTheme.titleMedium!.fontSize,
+                        color: Color(
+                          0xFFC78D20,
+                        ),
+                        fontSize: Sizes.size18,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -165,328 +550,135 @@ class _ProfessorScreenState extends ConsumerState<ProfessorScreen>
               ),
             ),
           ),
-          SliverPersistentHeader(
-            pinned: true,
-            delegate: SubPersistentTabBar(
-              tabController: _subTabController,
-            ),
-          ),
-        ];
-      },
-      body: TabBarView(
-        controller: _mainTabController,
+        ),
+      ),
+    );
+  }
+}
+
+class ProfessorConsultingBox extends StatelessWidget {
+  const ProfessorConsultingBox({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        vertical: Sizes.size10,
+        horizontal: Sizes.size5,
+      ),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(
+          10,
+        ),
+        border: Border.all(
+          color: Colors.grey.shade500,
+          width: 0.3,
+        ),
+      ),
+      width: 150,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // '분야로 찾기' 탭의 TabBarView
-          TabBarView(
-            controller: _subTabController,
+          const Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              ListView.builder(
-                itemCount: 1,
-                itemBuilder: (context, index) => Column(
-                  children: [
-                    GestureDetector(
-                      onTap: _gotoProfessorSearchScreen,
-                      child: ProfessorItems(
-                        headertitle: "일반 진료 및 예방 접종",
-                        items: [
-                          Item(
-                            title: "일상적인 건강진단",
-                            subtitle: "체중, 체온 측정, 심장 및 호흡 속도 검사 등",
-                          ),
-                          Item(
-                            title: "예방접종",
-                            subtitle: "개인의 나이, 생활 환경, 여행 습관을 고려해 맞춤형 접종 계획",
-                          ),
-                          Item(
-                            title: "기본적인 건강 관리 상담",
-                            subtitle: "건강한 생활 습관, 영양 상담, 운동 권장 사항 등",
-                          ),
-                        ],
-                      ),
-                    ),
-                    ProfessorItems(
-                      headertitle: "특수 질병 관리",
-                      items: [
-                        Item(
-                          title: "알러지",
-                          subtitle: "반려동물의 알러지 반응을 진단 및 상담 제공",
-                        ),
-                        Item(
-                          title: "피부 질환",
-                          subtitle: "피부 감염, 진드기 등 피부 질환의 진단 및 치료",
-                        ),
-                        Item(
-                          title: "내분비 질환",
-                          subtitle: "갑상선 기능 장애, 당뇨병 등 내분비 계 질환의 진단과 관리",
-                        ),
-                      ],
-                    ),
-                    ProfessorItems(
-                      headertitle: "노령견 관리",
-                      items: [
-                        Item(
-                          title: "노령견의 건강 관리",
-                          subtitle: "노령견의 특수한 건강 요구 사항에 초점을 맞춘 관리",
-                        ),
-                        Item(
-                          title: "영양",
-                          subtitle: "반려동물의 나이, 건강 상태, 활동 수준에 맞는 영양 상담",
-                        ),
-                        Item(
-                          title: "일상 생활의 편의 제공",
-                          subtitle: "반려동물의 삶의 질 향상을 위한 일상 생활의 편의 제공",
-                        ),
-                      ],
-                    ),
-                    ProfessorItems(
-                      headertitle: "응급 처치 및 사고 대비",
-                      items: [
-                        Item(
-                          title: "응급 상황",
-                          subtitle: "응급 상황 발생 시 신속하고 효과적인 대응 방법",
-                        ),
-                        Item(
-                          title: "사고 예방",
-                          subtitle:
-                              "가정 내 안전 조치, 외출 시 안전 수칙, 독성 식물/물질 회피 방안 등 제공",
-                        ),
-                      ],
-                    ),
-                    ProfessorItems(
-                      headertitle: "생식 건강 및 관리",
-                      items: [
-                        Item(
-                          title: "임신",
-                          subtitle: "임신 기간 동안 필요한 영양, 운동, 건강 모니터링에 대한 전문적 조언",
-                        ),
-                        Item(
-                          title: "출산 관련 상담 및 건강 관리",
-                          subtitle: "출산 전 후의 준비 및 주의사항",
-                        ),
-                      ],
-                    ),
-                    ProfessorItems(
-                      headertitle: "기타",
-                      items: [
-                        Item(
-                          title: "기타",
-                          subtitle: "기타 문의하세요",
-                        ),
-                      ],
-                    ),
-                  ],
+              Text(
+                "제목",
+                style: TextStyle(
+                  fontSize: Sizes.size14,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
-              // '수의사' 선택 시의 컨텐츠
-              // '훈련사' 선택 시의 컨텐츠
-              ListView.builder(
-                itemCount: 1,
-                itemBuilder: (context, index) => Column(
-                  children: [
-                    ProfessorItems(
-                      headertitle: "기본 순종 훈련",
-                      items: [
-                        Item(
-                          title: "기본적인 순종 훈련 상담",
-                          subtitle: "앉기, 기다리기, 옆에 걷기와 같은 기본 명령어 숙달",
-                        ),
-                      ],
-                    ),
-                    ProfessorItems(
-                      headertitle: "행동 수정",
-                      items: [
-                        Item(
-                          title: "문제 행동 수정 방법 제공",
-                          subtitle:
-                              "공격성, 짖음, 파괴 행동 등의 문제 행동을 인식하고 수정하기 위한 행동 치료 기법",
-                        ),
-                      ],
-                    ),
-                    ProfessorItems(
-                      headertitle: "고급 훈련 및 스포츠",
-                      items: [
-                        Item(
-                          title: "고급 훈련 방법과 경쟁 준비",
-                          subtitle:
-                              "애견 스포츠, 트릭 훈련, 장애물 코스 통과 등을 포함한 고급 훈련 프로그램",
-                        ),
-                      ],
-                    ),
-                    ProfessorItems(
-                      headertitle: "사회화 및 적응 훈련",
-                      items: [
-                        Item(
-                          title: "적절한 상호작용 및 적응 훈련",
-                          subtitle:
-                              "다른 동물이나 사람과의 긍정적인 상호작용 촉진 및 다양한 환경에 효과적으로 적응",
-                        ),
-                      ],
-                    ),
-                    ProfessorItems(
-                      headertitle: "분리 불안 해소",
-                      items: [
-                        Item(
-                          title: "분리 불안 해소 전략 및 훈련",
-                          subtitle: "주인과 떨어져 있을 때 발생하는 불안 감소를 위한 방법",
-                        ),
-                      ],
-                    ),
-                    ProfessorItems(
-                      headertitle: "이동 및 여행 훈련",
-                      items: [
-                        Item(
-                          title: "여행 시 준비 및 훈련 상담",
-                          subtitle:
-                              "차량 이동, 대중교통 이용, 여행 시 필요한 준비 사항 및 반려견의 편안함을 위한 훈련",
-                        ),
-                      ],
-                    ),
-                    ProfessorItems(
-                      headertitle: "기타",
-                      items: [
-                        Item(
-                          title: "기타",
-                          subtitle: "기타 문의하세요",
-                        ),
-                      ],
-                    ),
-                  ],
+              Gaps.h5,
+              Flexible(
+                child: Text(
+                  "제목ㅇ맒느룸느울ㄴㅁㅇ리ㅏㅇ너ㅣ라ㅓㅏㅣㄴㅁ어리ㅏㅓㄴ이라",
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
             ],
           ),
-          // '지도로 찾기' 탭의 화면
-          // 수의사 선택시
-          if (_subSelectedIndex == 0)
-            ListView.builder(
-              itemCount: 1,
-              itemBuilder: (context, index) => Column(
-                children: [
-                  MapItems(
-                    headertitle: "서울특별시",
-                    items: [
-                      Item(
-                        title: "서초/강남",
-                      ),
-                      Item(
-                        title: "강동/송파",
-                      ),
-                      Item(
-                        title: "강서/양천/영등포/구로",
-                      ),
-                      Item(
-                        title: "도봉/강북/성북/노원",
-                      ),
-                      Item(
-                        title: "동대문/성동/광진/중랑",
-                      ),
-                      Item(
-                        title: "종로/중구/용산",
-                      ),
-                      Item(
-                        title: "서대문/마포/은평",
-                      ),
-                      Item(
-                        title: "동작/관악/금천",
-                      ),
-                    ],
-                  ),
-                  MapItems(
-                    headertitle: "경기도",
-                    items: [
-                      Item(
-                        title: "수원/화성/용인",
-                      ),
-                      Item(
-                        title: "안산/시흥/광명/안양",
-                      ),
-                      Item(
-                        title: "성남/광주/하남",
-                      ),
-                      Item(
-                        title: "고양/김포/파주",
-                      ),
-                      Item(
-                        title: "의정부/남양주/구리",
-                      ),
-                      Item(
-                        title: "평택/오산/안성",
-                      ),
-                      Item(
-                        title: "여주/이천/양평",
-                      ),
-                    ],
-                  ),
-                ],
+          Gaps.v10,
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                "답변",
+                style: TextStyle(
+                  fontSize: Sizes.size12,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.grey.shade800,
+                ),
               ),
-            ),
-
-          //훈련사 선택시
-          if (_subSelectedIndex == 1)
-            ListView.builder(
-              itemCount: 1,
-              itemBuilder: (context, index) => Column(
-                children: [
-                  MapItems(
-                    headertitle: "서울특별시",
-                    items: [
-                      Item(
-                        title: "서초/강남",
-                      ),
-                      Item(
-                        title: "강동/송파",
-                      ),
-                      Item(
-                        title: "강서/양천/영등포/구로",
-                      ),
-                      Item(
-                        title: "도봉/강북/성북/노원",
-                      ),
-                      Item(
-                        title: "동대문/성동/광진/중랑",
-                      ),
-                      Item(
-                        title: "종로/중구/용산",
-                      ),
-                      Item(
-                        title: "서대문/마포/은평",
-                      ),
-                      Item(
-                        title: "동작/관악/금천",
-                      ),
-                    ],
-                  ),
-                  MapItems(
-                    headertitle: "경기도",
-                    items: [
-                      Item(
-                        title: "수원/화성/용인",
-                      ),
-                      Item(
-                        title: "안산/시흥/광명/안양",
-                      ),
-                      Item(
-                        title: "성남/광주/하남",
-                      ),
-                      Item(
-                        title: "고양/김포/파주",
-                      ),
-                      Item(
-                        title: "의정부/남양주/구리",
-                      ),
-                      Item(
-                        title: "평택/오산/안성",
-                      ),
-                      Item(
-                        title: "여주/이천/양평",
-                      ),
-                    ],
-                  ),
-                ],
+              Gaps.h5,
+              const Flexible(
+                child: Text(
+                  "제목ㅇ맒느룸느울ㄴㅁㅇ리ㅏㅇ너ㅣ라ㅓㅏㅣㄴㅁ어리ㅏㅓㄴ이라",
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
-            ),
+            ],
+          ),
         ],
       ),
     );
+  }
+}
+
+class CertificationType extends StatelessWidget {
+  const CertificationType({
+    super.key,
+    required this.icon,
+    required this.text,
+  });
+  final IconData icon;
+  final String text;
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        FaIcon(
+          icon,
+          size: Sizes.size24,
+        ),
+        Gaps.v10,
+        Text(
+          text,
+          style: const TextStyle(
+            fontSize: Sizes.size16,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
+  final TabBar tabBar;
+
+  _SliverAppBarDelegate(this.tabBar);
+
+  @override
+  double get minExtent => tabBar.preferredSize.height;
+  @override
+  double get maxExtent => tabBar.preferredSize.height;
+
+  @override
+  Widget build(
+      BuildContext context, double shrinkOffset, bool overlapsContent) {
+    return Container(
+      color: Colors.white, // 배경색
+      child: tabBar,
+    );
+  }
+
+  @override
+  bool shouldRebuild(_SliverAppBarDelegate oldDelegate) {
+    return false;
   }
 }

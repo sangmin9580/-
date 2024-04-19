@@ -13,7 +13,7 @@ import 'package:project/consultationcase/view/consultingexample_screen.dart';
 import 'package:project/common/view/search_screen.dart';
 import 'package:project/homepage/view/homepage_screen.dart';
 import 'package:project/mypage/view/mypage_screen.dart';
-import 'package:project/professor/view/professor_screen.dart';
+import 'package:project/professor/view/professor_select_screen.dart';
 
 class MainNavigationScreen extends ConsumerStatefulWidget {
   const MainNavigationScreen({
@@ -95,7 +95,7 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen>
     } else {
       // _tabBarselectedIndex가 2인 경우, ProfessorScreen을 첫 번째 위치에 배치하고 나머지는 기존대로
       return [
-        const ProfessorScreen(),
+        const ProfessorSelectScreen(),
         // SearchScreen을 Navigator로 감싸서 별도의 네비게이션 스택을 관리합니다.
         Container(), // SearchScreen은 별도의 Navigator로 처리됩니다.
         const ConsultationWritingScreen(),

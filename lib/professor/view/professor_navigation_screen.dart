@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:project/common/view/search_screen.dart';
 import 'package:project/consultationcase/view/consulting_detail_screen.dart';
 import 'package:project/common/viewmodel/main_navigation_vm.dart';
@@ -10,6 +11,7 @@ import 'package:project/constants/default.dart';
 import 'package:project/constants/gaps.dart';
 import 'package:project/constants/sizes.dart';
 import 'package:project/consultationcase/widgets/consultantexample_box.dart';
+import 'package:project/professor/view/professor_screen.dart';
 import 'package:project/professor/widgets/pricdelistcontent.dart';
 
 class ProfessorNavigationScreen extends ConsumerStatefulWidget {
@@ -131,33 +133,40 @@ class _ProfessorNavigationScreenState
                       ),
                     ],
                   ),
-                  Transform.scale(
-                    scale: 1.1,
-                    child: Container(
-                      alignment: Alignment.center,
-                      width: Sizes.size64,
-                      height: Sizes.size64,
-                      decoration: const BoxDecoration(
-                        color: Color(0xFF8D9440),
-                      ),
-                      child: const Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            "예약",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w600,
+                  GestureDetector(
+                    onTap: () {
+                      context.push(
+                        ProfessorScreen.routerURL,
+                      );
+                    },
+                    child: Transform.scale(
+                      scale: 1.1,
+                      child: Container(
+                        alignment: Alignment.center,
+                        width: Sizes.size64,
+                        height: Sizes.size64,
+                        decoration: const BoxDecoration(
+                          color: Color(0xFF8D9440),
+                        ),
+                        child: const Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              "예약",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
-                          ),
-                          Text(
-                            "하기",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w600,
+                            Text(
+                              "하기",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                   ),
