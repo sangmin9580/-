@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:intl/intl.dart';
 import 'package:project/constants/default.dart';
 import 'package:project/constants/gaps.dart';
 import 'package:project/constants/sizes.dart';
+import 'package:project/professor/viewmodel/expert_consultation_options_vm.dart';
+import 'package:project/professor/viewmodel/professor_schedule_vm.dart';
+import 'package:project/professor/widgets/consulting_apply_bottom_bar.dart';
+import 'package:project/professor/widgets/consulting_typebox.dart';
 import 'package:project/professor/widgets/map_sample.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -18,61 +23,251 @@ class ProfessorScreen extends ConsumerStatefulWidget {
       _ProfessorScreenState();
 }
 
-void _launchURL() async {
-  const url = 'https://map.naver.com/v5/search/서울특별시 서초구 반포대로 18길 36';
-  final uri = Uri.parse(url);
-  print("dafdsfa");
-  if (await canLaunchUrl(uri)) {
-    await launchUrl(uri);
-  } else {
-    throw 'Could not launch $uri';
+class _ProfessorScreenState extends ConsumerState<ProfessorScreen>
+    with TickerProviderStateMixin {
+  late AnimationController _consultingTypeAnimationController;
+  late AnimationController _consultingDateAnimationController;
+  late Animation<double> _consultingTypeAnimation;
+  late Animation<double> _consultingDateAnimation;
+  @override
+  void initState() {
+    super.initState();
+    _consultingTypeAnimationController = AnimationController(
+      duration: const Duration(milliseconds: 200),
+      vsync: this,
+    );
+    _consultingDateAnimationController = AnimationController(
+      duration: const Duration(milliseconds: 200),
+      vsync: this,
+    );
+    _consultingTypeAnimation = Tween<double>(begin: 0.0, end: 0.5)
+        .animate(_consultingTypeAnimationController);
+    _consultingDateAnimation = Tween<double>(begin: 0.0, end: 0.5)
+        .animate(_consultingDateAnimationController);
   }
-}
 
-void _callOffice() {
-  // 전화 거는 로직
-}
-void _showBookingModal(BuildContext context) {
-  showModalBottomSheet(
-    context: context,
-    builder: (BuildContext context) {
-      return StatefulBuilder(
-        builder: (BuildContext context, StateSetter setState) {
-          const String selectedOption = ""; // 사용자가 선택한 예약 옵션을 저장할 변수
-          // ... 기타 필요한 상태 변수를 추가
+  void _launchURL() async {
+    const url = 'https://map.naver.com/v5/search/서울특별시 서초구 반포대로 18길 36';
+    final uri = Uri.parse(url);
 
-          return Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              const ListTile(
-                title: Text('상담 종류 선택'),
-                // ... 여기에 상담 종류를 선택할 수 있는 위젯 추가
-              ),
-              const ListTile(
-                title: Text('날짜 선택'),
-                // ... 여기에 날짜를 선택할 수 있는 위젯 추가
-              ),
-              const ListTile(
-                title: Text('시간 선택'),
-                // ... 여기에 시간을 선택할 수 있는 위젯 추가
-              ),
-              ElevatedButton(
-                onPressed: selectedOption != null // 모든 선택이 완료되었는지 여부
-                    ? () {
-                        // 다음 버튼의 액션을 처리
-                      }
-                    : null, // 모든 선택이 완료되지 않았다면 버튼 비활성화
-                child: const Text('다음'),
-              ),
-            ],
-          );
-        },
-      );
-    },
-  );
-}
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri);
+    } else {
+      throw 'Could not launch $uri';
+    }
+  }
 
-class _ProfessorScreenState extends ConsumerState<ProfessorScreen> {
+  void _callOffice() {
+    // 전화 거는 로직
+  }
+
+  void _onCardTap(String consultationType) {
+    // 상담 종류 선택 업데이트
+    print('Selected consultation type: $consultationType');
+    ref
+        .read(consultationScheduleProvider.notifier)
+        .selectConsultationType(consultationType);
+    // 드롭다운 닫기
+    _consultingTypeToggleDropdown();
+  }
+
+  void _showBookingModal(BuildContext context, WidgetRef ref) async {
+    // ViewModel의 상태를 구독
+
+    await showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            //상담 종류 선택
+            final selectedConsultationType =
+                ref.watch(consultationScheduleProvider).consultationType;
+            //나중에 전문가들이 가능한 상담 종류를 선택할 예정, 지금은 empty를 3개다 default로 해놓음
+            final consultationOptions =
+                ref.watch(expertConsultationOptionsProvider);
+
+            //날짜 선택
+            DateTime? selectedDate =
+                ref.watch(consultationScheduleProvider).date;
+            //날짜 선택 후 listile의 title에 날짜 목록을 넣기위한 방법
+            final datetitleText = selectedDate != null
+                ? DateFormat('MM/dd (E)').format(selectedDate)
+                : '날짜 선택';
+
+            return Stack(
+              children: [
+                ListView(
+                  padding: const EdgeInsets.only(
+                    bottom: Sizes.size96,
+                  ),
+                  children: [
+                    Gaps.v20,
+                    // 날짜와 시간을 위한 SizeTransition과 ListTile을 비슷한 방식으로 구현...
+                    ListTile(
+                      title: Row(
+                        children: [
+                          const FaIcon(
+                            FontAwesomeIcons.phone,
+                            size: Sizes.size14,
+                          ),
+                          Gaps.h10,
+                          Text(
+                            selectedConsultationType ?? '',
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: Sizes.size14,
+                            ),
+                          ),
+                        ],
+                      ),
+                      trailing: RotationTransition(
+                        turns: _consultingTypeAnimation,
+                        child: const Icon(Icons.expand_more),
+                      ),
+                      onTap: () => _consultingTypeToggleDropdown(),
+                    ),
+                    SizeTransition(
+                      sizeFactor: _consultingTypeAnimation,
+                      child: SizedBox(
+                        height: 100, // 적절한 높이 설정
+                        child: ListView.builder(
+                          scrollDirection: Axis.horizontal, // 가로 스크롤 설정
+                          itemCount: consultationOptions
+                              .availableConsultationTypes.length,
+                          itemBuilder: (context, index) {
+                            final type = consultationOptions
+                                .availableConsultationTypes[index];
+                            return ConsultingTypeBox(
+                              type: type,
+                              selectedType: ref
+                                      .watch(consultationScheduleProvider)
+                                      .consultationType ??
+                                  "", // 현재 선택된 상담 종류 변수, 기본값 설정
+                              onTap: () {
+                                ref
+                                    .read(consultationScheduleProvider.notifier)
+                                    .selectConsultationType(type);
+                                // 필요한 경우 상태 업데이트 로직
+                                _onCardTap(type);
+                                setState(
+                                  () {},
+                                );
+                              },
+                            );
+                          },
+                        ),
+                      ),
+                    ),
+                    ListTile(
+                      title: Row(
+                        children: [
+                          const FaIcon(
+                            FontAwesomeIcons.calendarDay,
+                            size: Sizes.size14,
+                          ),
+                          Gaps.h10,
+                          Text(
+                            datetitleText,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: Sizes.size14,
+                            ),
+                          ),
+                        ],
+                      ),
+                      trailing: RotationTransition(
+                        turns: _consultingDateAnimation,
+                        child: const Icon(Icons.expand_more),
+                      ),
+                      onTap: () => _consultingDateToggleDropdown(),
+                    ),
+                    SizeTransition(
+                      sizeFactor: _consultingDateAnimation,
+                      child: SizedBox(
+                          height: 150, // 적절한 높이 설정
+                          child: ListView.builder(
+                            scrollDirection: Axis.horizontal,
+                            itemCount: ref
+                                .watch(expertConsultationOptionsProvider)
+                                .availableDates
+                                .length,
+                            itemBuilder: (context, index) {
+                              final date = ref
+                                  .watch(expertConsultationOptionsProvider)
+                                  .availableDates[index];
+                              final isSelected = selectedDate == date;
+
+                              return GestureDetector(
+                                onTap: () {
+                                  setState(() {
+                                    selectedDate = date;
+                                  });
+                                },
+                                child: Container(
+                                  alignment: Alignment.center,
+                                  margin: const EdgeInsets.all(4),
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    color: isSelected
+                                        ? Colors.blue
+                                        : Colors.grey[200],
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Column(
+                                    children: [
+                                      Text('${date.day}'),
+                                      Text(DateFormat('E').format(date),
+                                          style: const TextStyle(fontSize: 12)),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            },
+                          )),
+                    ),
+                  ],
+                ),
+                Positioned(
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
+                  child: consultingApplyBottomBar(
+                    context,
+                    ref,
+                  ),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+    ref.read(consultationScheduleProvider.notifier).reset();
+  }
+
+  @override
+  void dispose() {
+    _consultingTypeAnimationController.dispose();
+    _consultingDateAnimationController.dispose();
+    super.dispose();
+  }
+
+  void _consultingTypeToggleDropdown() {
+    if (_consultingTypeAnimationController.isCompleted) {
+      _consultingTypeAnimationController.reverse();
+    } else {
+      _consultingTypeAnimationController.forward();
+    }
+  }
+
+  void _consultingDateToggleDropdown() {
+    if (_consultingDateAnimationController.isCompleted) {
+      _consultingDateAnimationController.reverse();
+    } else {
+      _consultingDateAnimationController.forward();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -534,7 +729,7 @@ class _ProfessorScreenState extends ConsumerState<ProfessorScreen> {
                     ),
                   ),
                   TextButton(
-                    onPressed: () => _showBookingModal(context),
+                    onPressed: () => _showBookingModal(context, ref),
                     child: const Text(
                       '상담 예약하기',
                       style: TextStyle(
