@@ -12,7 +12,7 @@ import 'package:project/constants/gaps.dart';
 import 'package:project/constants/sizes.dart';
 import 'package:project/consultationcase/widgets/consultantexample_box.dart';
 import 'package:project/professor/view/professor_screen.dart';
-import 'package:project/professor/widgets/pricdelistcontent.dart';
+import 'package:project/professor/widgets/pricelistcontent.dart';
 
 class ProfessorNavigationScreen extends ConsumerStatefulWidget {
   const ProfessorNavigationScreen({super.key});

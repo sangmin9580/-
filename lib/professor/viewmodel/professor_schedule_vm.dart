@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:project/professor/model/professor_schedule_model.dart';
+import 'package:project/professor/viewmodel/expert_consultation_options_vm.dart';
 
 class ConsultationScheduleViewModel
     extends Notifier<ConsultationScheduleModel> {
@@ -12,8 +13,10 @@ class ConsultationScheduleViewModel
   TimeOfDay? get selectedTime => state.time;
   int? get consultingPrice => state.price;
 
+  // 상담 종류 선택 시 호출되는 메서드
   void selectConsultationType(String type) {
-    state = state.copyWith(consultationType: type);
+    int price = getPriceByType(type); // ViewModel에서 가격 가져오기
+    state = state.copyWith(consultationType: type, price: price);
   }
 
   void selectDate(DateTime date) {
@@ -27,6 +30,13 @@ class ConsultationScheduleViewModel
   String formatPrice(int? price) {
     if (price == null) return '0원';
     return NumberFormat('#,###원', 'ko_KR').format(price);
+  }
+
+  int getPriceByType(String consultationType) {
+    // 다른 ViewModel의 상태를 참조
+    final pricePerType =
+        ref.read(expertConsultationOptionsProvider).pricePerType;
+    return pricePerType[consultationType] ?? 0; // 기본값은 0으로 설정
   }
 
   void reset() {
@@ -46,3 +56,6 @@ final consultationScheduleProvider =
         () {
   return ConsultationScheduleViewModel();
 });
+
+// 선택된 시간을 관리하는 StateProvider
+final selectedTimeProvider = StateProvider<TimeOfDay?>((ref) => null);

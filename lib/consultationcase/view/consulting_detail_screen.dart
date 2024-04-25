@@ -89,10 +89,11 @@ class ConsultingDetailScreen extends ConsumerWidget {
                           Text(
                             "title",
                             style: TextStyle(
-                                fontSize: Theme.of(context)
-                                    .textTheme
-                                    .titleLarge!
-                                    .fontSize),
+                              fontSize: Theme.of(context)
+                                  .textTheme
+                                  .titleLarge!
+                                  .fontSize,
+                            ),
                           ),
                           Gaps.v10,
                           Gaps.v5,

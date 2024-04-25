@@ -1,6 +1,7 @@
 // 모달 하단의 가격 및 '다음' 버튼을 구현
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:project/constants/sizes.dart';
 import 'package:project/professor/viewmodel/professor_schedule_vm.dart';
 
@@ -63,10 +64,16 @@ Widget consultingApplyBottomBar(BuildContext context, WidgetRef ref) {
                 ),
                 onPressed: allOptionsSelected
                     ? () {
-                        // '다음' 버튼 클릭시 수행할 로직
+                        context.pop();
                       }
                     : null, // 모든 선택 사항이 완료되지 않았다면 버튼을 비활성화
-                child: const Text('다음', style: TextStyle(fontSize: 18.0)),
+                child: Text(
+                  '다음',
+                  style: TextStyle(
+                    fontSize: 18.0,
+                    color: allOptionsSelected ? Colors.white : Colors.grey,
+                  ),
+                ),
               ),
             ),
           ],

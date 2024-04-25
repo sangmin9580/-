@@ -12,8 +12,7 @@ final routerProvider = Provider.family<GoRouter, bool>(
     print('Router is being initialized with isFirstRun: $isFirstRun');
     return GoRouter(
       // isFirstRun이 true이면 동의 화면의 경로를, 아니면 메인 화면의 경로를 초기 위치로 설정합니다.
-      initialLocation: ProfessorScreen.routerURL,
-      //isFirstRun ? ConsentScreen.routerURL : "/home",
+      initialLocation: isFirstRun ? ConsentScreen.routerURL : "/home",
       debugLogDiagnostics: true, // 디버그 로깅 활성화
       routes: [
         // 동의 화면에 해당하는 GoRoute 추가 (ConsentScreen 구현 필요)

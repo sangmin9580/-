@@ -25,8 +25,28 @@ class ExpertConsultationOptionsModel {
             ),
           ),
         ),
-        availableTimesPerType = {},
-        pricePerType = {};
+        availableTimesPerType = {
+          "10분 전화상담": List.generate(48, (index) {
+            final hour = (index ~/ 2).toString().padLeft(2, '0');
+            final minute = (index % 2 == 0) ? '00' : '30';
+            return '$hour:$minute';
+          }),
+          "30분 고객방문": List.generate(48, (index) {
+            final hour = (index ~/ 2).toString().padLeft(2, '0');
+            final minute = (index % 2 == 0) ? '00' : '30';
+            return '$hour:$minute';
+          }),
+          "30분 전문가방문": List.generate(48, (index) {
+            final hour = (index ~/ 2).toString().padLeft(2, '0');
+            final minute = (index % 2 == 0) ? '00' : '30';
+            return '$hour:$minute';
+          }),
+        },
+        pricePerType = {
+          "10분 전화상담": 20000, // Example price in KRW
+          "30분 고객방문": 50000, // Example price in KRW
+          "30분 전문가방문": 75000, // Example price in KRW
+        };
 
   ExpertConsultationOptionsModel copyWith({
     List<String>? availableConsultationTypes,
