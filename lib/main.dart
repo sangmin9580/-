@@ -1,9 +1,11 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:project/feature/mypage/pets/repo/notification_repository.dart';
+import 'package:project/firebase_options.dart';
 
-import 'package:project/mypage/repo/notification_repository.dart';
 import 'package:project/router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -11,7 +13,9 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   //app이 시작되기 전에 모든 준비를 마칠 수 있도록 하는 행위
   // 앱 설정을 앱 시작전 미리 하기 위해서 설정
-
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   await SystemChrome.setPreferredOrientations(
     [
       DeviceOrientation.portraitUp,

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "356121302292",
+    "project_id": "mungteacher-6f8b8",
+    "storage_bucket": "mungteacher-6f8b8.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:356121302292:android:4d7e6b6683df4c35e2de01",
+        "android_client_info": {
+          "package_name": "com.example.mungteacher"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDnaCHQJyjRbT2i9bzSviCusgylMLSdOWc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

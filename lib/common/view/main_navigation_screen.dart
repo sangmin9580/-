@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:project/consultationcase/view/consulting_detail_screen.dart';
-import 'package:project/consultationcase/viewmodel/consultingexample_vm.dart';
+import 'package:project/feature/consultationcase/view/consulting_detail_screen.dart';
+import 'package:project/feature/consultationcase/viewmodel/consultingexample_vm.dart';
 import 'package:project/common/viewmodel/main_navigation_vm.dart';
 import 'package:project/common/widgets/bottomnavigationBar.dart';
 
 import 'package:project/constants/gaps.dart';
 
-import 'package:project/consultationcase/view/consultingwriting_screen.dart';
-import 'package:project/consultationcase/view/consultingexample_screen.dart';
+import 'package:project/feature/consultationcase/view/consultingwriting_screen.dart';
+import 'package:project/feature/consultationcase/view/consultingexample_screen.dart';
 import 'package:project/common/view/search_screen.dart';
-import 'package:project/homepage/view/homepage_screen.dart';
-import 'package:project/mypage/view/mypage_screen.dart';
-import 'package:project/professor/view/professor_select_screen.dart';
+import 'package:project/feature/homepage/view/homepage_screen.dart';
+import 'package:project/feature/mypage/users/views/mypage_screen.dart';
+import 'package:project/feature/professor/view/professor_select_screen.dart';
 
 class MainNavigationScreen extends ConsumerStatefulWidget {
   const MainNavigationScreen({

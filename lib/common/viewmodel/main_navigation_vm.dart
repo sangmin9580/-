@@ -14,6 +14,7 @@ class MainNavigationViewModel extends Notifier<MainNavigationModel> {
     switch (tab) {
       case 'home':
         setTabBarSelectedIndex(0);
+        setNavigationBarSelectedIndex(0);
         break;
       case 'search':
         setTabBarSelectedIndex(1);
