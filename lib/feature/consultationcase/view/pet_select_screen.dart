@@ -39,7 +39,7 @@ class PetEditScreen extends ConsumerWidget {
           onWillPop: () async {
             final expertType = ref.read(expertTypeProvider);
             final consultationTopic = ref.read(consultationTopicProvider);
-
+            print("adfkjlksadjflksadjflkja");
             // 전문가 유형 또는 상담 주제가 선택되지 않았다면 홈 화면으로 돌아감
             if (expertType == null ||
                 consultationTopic == null ||

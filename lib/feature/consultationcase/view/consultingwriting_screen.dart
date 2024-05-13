@@ -13,7 +13,6 @@ import 'package:project/constants/sizes.dart';
 import 'package:project/feature/consultationcase/view/pet_select_screen.dart';
 import 'package:project/feature/consultationcase/viewmodel/consultingexample_vm.dart';
 import 'package:project/feature/mypage/pets/model/pet_model.dart';
-import 'package:project/feature/mypage/pets/viewmodel/pet_info_vm.dart';
 import 'package:project/feature/mypage/pets/viewmodel/pet_navigation_vm.dart';
 import 'package:project/feature/mypage/pets/viewmodel/pet_select_vm.dart';
 import 'package:project/feature/mypage/widgets/petinformationbox.dart';

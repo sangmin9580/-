@@ -53,34 +53,60 @@ class PetInformationBox extends StatelessWidget {
             children: [
               const CircleAvatar(),
               Gaps.h10,
-              Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(name),
-                  SizedBox(
-                    height: 20,
-                    child: DefaultTextStyle(
-                      style: TextStyle(
-                        fontSize: Sizes.size12,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.grey.shade500,
+              Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(name),
+                    SizedBox(
+                      height: 20,
+                      child: DefaultTextStyle(
+                        style: TextStyle(
+                          fontSize: Sizes.size12,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.grey.shade500,
+                        ),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Flexible(
+                              fit: FlexFit.loose,
+                              child: Text(
+                                breed,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                            verticalDivider,
+                            Flexible(
+                              fit: FlexFit.loose,
+                              child: Text(
+                                age,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                            verticalDivider,
+                            Flexible(
+                              fit: FlexFit.loose,
+                              child: Text(
+                                bio,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                            verticalDivider,
+                            Flexible(
+                              fit: FlexFit.loose,
+                              child: Text(
+                                "$weight kg",
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Text(breed),
-                          verticalDivider,
-                          Text(age),
-                          verticalDivider,
-                          Text(bio),
-                          verticalDivider,
-                          Text("$weight kg"),
-                        ],
-                      ),
-                    ),
-                  )
-                ],
+                    )
+                  ],
+                ),
               )
             ],
           ),

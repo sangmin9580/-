@@ -38,13 +38,13 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen>
   @override
   void initState() {
     super.initState();
-    final state = ref.read(mainNavigationViewModelProvider);
+    final mainNavProvider = ref.read(mainNavigationViewModelProvider);
 
     //_tabController 변경
     _tabController = TabController(
       length: 3,
       vsync: this,
-      initialIndex: state.tabBarSelectedIndex,
+      initialIndex: mainNavProvider.tabBarSelectedIndex,
     );
 
     //_tabController addlistener를 통해 tabBar를 조정
@@ -175,6 +175,47 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen>
     FocusScope.of(context).unfocus();
   }
 
+  Future<bool> handleOnPop(BuildContext context) async {
+    print("Handling onWillPop");
+    final viewModel = ref.read(mainNavigationViewModelProvider.notifier);
+    int previousTabIndex = viewModel.getPreviousTabIndex();
+    int previousNavigationBarIndex = viewModel.getPreviousNavigationBarIndex();
+
+    print("Previous Tab Index: $previousTabIndex");
+    print("Previous Navigation Bar Index: $previousNavigationBarIndex");
+
+    if (previousTabIndex != -1 || previousNavigationBarIndex != -1) {
+      if (previousTabIndex != -1) {
+        viewModel.setTabBarSelectedIndex(previousTabIndex);
+      }
+      if (previousNavigationBarIndex != -1) {
+        viewModel.setNavigationBarSelectedIndex(previousNavigationBarIndex);
+      }
+      print("Handled onWillPop by restoring previous state.");
+      return false;
+    }
+
+    print("No history found. Prompting exit dialog.");
+    return await showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('앱 종료'),
+            content: const Text('앱을 종료하시겠습니까?'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text('아니요'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                child: const Text('예'),
+              ),
+            ],
+          ),
+        ) ??
+        false;
+  }
+
   @override
   void dispose() {
     _tabController.dispose();
@@ -199,78 +240,96 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen>
 
     if (tabIndex != 0) {
       return Scaffold(
-        body: screens[tabIndex],
+        body: PopScope(
+            canPop: true,
+            onPopInvoked: (didPop) async {
+              if (!didPop) {
+                // 뒤로 가기 처리가 차단된 경우, 로직을 수행
+                await handleOnPop(context);
+              }
+            },
+            child: screens[tabIndex]),
         bottomNavigationBar: isBottomNavigationBarVisible
             ? bottomNavigationBar
             : null, // 이 부분은 예시로 추가한 부분입니다. 실제 코드에 맞게 조정하세요.
       );
     }
 
-    return GestureDetector(
-      onTap: _onbodyTap,
-      child: Scaffold(
-        appBar: AppBar(
-          // 나중에 누르면 홈오게 만들어야함.
-          title: GestureDetector(
-            onTap: _onAppbarTitleTap,
-            child: Text(
-              "멍선생",
-              style: TextStyle(
-                color: Theme.of(context).primaryColor,
-                fontSize: Theme.of(context).textTheme.headlineSmall!.fontSize,
-                fontWeight: FontWeight.bold,
+    return PopScope(
+      canPop: true,
+      onPopInvoked: (didPop) async {
+        if (!didPop) {
+          // 뒤로 가기 처리가 차단된 경우, 로직을 수행
+          await handleOnPop(context);
+        }
+      },
+      child: GestureDetector(
+        onTap: _onbodyTap,
+        child: Scaffold(
+          appBar: AppBar(
+            // 나중에 누르면 홈오게 만들어야함.
+            title: GestureDetector(
+              onTap: _onAppbarTitleTap,
+              child: Text(
+                "멍선생",
+                style: TextStyle(
+                  color: Theme.of(context).primaryColor,
+                  fontSize: Theme.of(context).textTheme.headlineSmall!.fontSize,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
+            actions: [
+              GestureDetector(
+                onTap: () => _onItemSelected(1),
+                child: const FaIcon(
+                  FontAwesomeIcons.magnifyingGlass,
+                ),
+              ),
+              Gaps.h10,
+              const Text(
+                "로그인/가입",
+              ),
+              Gaps.h10,
+            ],
+            bottom: (state.tabBarSelectedIndex != 2 &&
+                    state.navigationBarSelectedIndex == 0)
+                ? TabBar(
+                    controller: _tabController,
+                    onTap: (index) {
+                      ref
+                          .read(mainNavigationViewModelProvider.notifier)
+                          .setTabBarSelectedIndex(index);
+                      FocusScope.of(context).unfocus();
+                    },
+                    splashFactory: NoSplash.splashFactory,
+                    unselectedLabelColor: Colors.grey.shade500,
+                    unselectedLabelStyle: const TextStyle(
+                      fontWeight: FontWeight.w600,
+                    ),
+                    labelPadding: const EdgeInsets.only(
+                      bottom: 10,
+                      top: 15,
+                    ),
+                    labelStyle: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize:
+                          Theme.of(context).textTheme.titleMedium!.fontSize,
+                    ),
+                    tabs: const [
+                      Text("홈"),
+                      Text("상담사례"),
+                      Text("전문가"),
+                    ],
+                  )
+                : null,
           ),
-          actions: [
-            GestureDetector(
-              onTap: () => _onItemSelected(1),
-              child: const FaIcon(
-                FontAwesomeIcons.magnifyingGlass,
-              ),
-            ),
-            Gaps.h10,
-            const Text(
-              "로그인/가입",
-            ),
-            Gaps.h10,
-          ],
-          bottom: (state.tabBarSelectedIndex != 2 &&
-                  state.navigationBarSelectedIndex == 0)
-              ? TabBar(
-                  controller: _tabController,
-                  onTap: (index) {
-                    ref
-                        .read(mainNavigationViewModelProvider.notifier)
-                        .setTabBarSelectedIndex(index);
-                    FocusScope.of(context).unfocus();
-                  },
-                  splashFactory: NoSplash.splashFactory,
-                  unselectedLabelColor: Colors.grey.shade500,
-                  unselectedLabelStyle: const TextStyle(
-                    fontWeight: FontWeight.w600,
-                  ),
-                  labelPadding: const EdgeInsets.only(
-                    bottom: 10,
-                    top: 15,
-                  ),
-                  labelStyle: TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize: Theme.of(context).textTheme.titleMedium!.fontSize,
-                  ),
-                  tabs: const [
-                    Text("홈"),
-                    Text("상담사례"),
-                    Text("전문가"),
-                  ],
-                )
-              : null,
+          body: IndexedStack(
+            index: tabIndex, // BottomNavigationBar의 선택에 따라 화면 전환
+            children: screens,
+          ),
+          bottomNavigationBar: bottomNavigationBar,
         ),
-        body: IndexedStack(
-          index: tabIndex, // BottomNavigationBar의 선택에 따라 화면 전환
-          children: screens,
-        ),
-        bottomNavigationBar: bottomNavigationBar,
       ),
     );
   }

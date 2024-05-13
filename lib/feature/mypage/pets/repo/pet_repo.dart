@@ -42,6 +42,13 @@ class PetRepository {
         .doc(petId)
         .update(data);
   }
+
+  Future<PetModel> getPetProfile(String userId, String petId) async {
+    var docRef =
+        _db.collection("users").doc(userId).collection('pets').doc(petId);
+    var snapshot = await docRef.get();
+    return PetModel.fromJson(snapshot.data()!);
+  }
 }
 
 final petsInfoProvider = Provider((ref) => PetRepository());
