@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:project/feature/consultationcase/viewmodel/consultingexample_vm.dart';
 
 import 'package:project/constants/default.dart';
 import 'package:project/constants/gaps.dart';
@@ -86,9 +85,7 @@ class ConsultantExampleScreen extends ConsumerWidget {
                 count: 3,
                 time: 30,
                 views: 16,
-                onTap: () {
-                  ref.read(screenProvider.notifier).state = true;
-                },
+                onTap: () {},
               ),
             ),
           ),

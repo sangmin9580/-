@@ -15,7 +15,6 @@ class ConsultingExampleViewModel extends Notifier<void> {
   }
 }
 
-final screenProvider = StateProvider<bool>((ref) => false);
 final expertTypeProvider = StateProvider<String?>((ref) => null);
 final consultationTopicProvider = StateProvider<String?>((ref) => null);
 final consultingExampleProvider =

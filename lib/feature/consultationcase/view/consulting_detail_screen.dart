@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:project/feature/consultationcase/viewmodel/consultingexample_vm.dart';
 
 import 'package:project/constants/default.dart';
 import 'package:project/constants/gaps.dart';
@@ -15,13 +14,11 @@ class ConsultingDetailScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    print(ref.read(screenProvider.notifier).state);
     final List<String> answers = ["1"]; // 전문가들의 답변 목록
 
     return Scaffold(
       body: WillPopScope(
         onWillPop: () async {
-          ref.read(screenProvider.notifier).state = false; // 상태를 false로 업데이트
           return true; // 시스템에 의해 화면이 종료될 수 있도록 허용
         },
         child: SingleChildScrollView(
@@ -53,9 +50,7 @@ class ConsultingDetailScreen extends ConsumerWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           GestureDetector(
-                            onTap: () {
-                              ref.read(screenProvider.notifier).state = false;
-                            },
+                            onTap: () {},
                             child: GestureDetector(
                               onTap: () {
                                 Navigator.of(context).pop();

@@ -98,7 +98,6 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     ref
         .read(mainNavigationViewModelProvider.notifier)
         .setNavigationBarSelectedIndex(0);
-    Navigator.of(context).pop(); // 현재 네비게이터 스택에서 SearchScreen을 제거
   }
 
   void _onbodyTap() {

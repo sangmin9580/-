@@ -279,14 +279,14 @@ class _ProfessorNavigationScreenState
         children: screens, // screens 리스트에 두 개의 위젯이 모두 포함되어 있어야 합니다.
       ),
       bottomNavigationBar: CustomBottomNavigationBar(
-          onItemSelected: (Index) {
+          onItemSelected: (index) {
             // MainNavigationScreen으로 돌아가면서 해당 인덱스의 탭을 활성화합니다.
             Navigator.pop(context); // ProfessorNavigationScreen을 닫습니다.
             ref
                 .read(mainNavigationViewModelProvider.notifier)
-                .setNavigationBarSelectedIndex(Index); // 탭 인덱스 업데이트
+                .setNavigationBarSelectedIndex(index); // 탭 인덱스 업데이트
 
-            if (Index == 1) {
+            if (index == 1) {
               Navigator.of(context).push(
                   MaterialPageRoute(builder: (_) => const SearchScreen()));
             }

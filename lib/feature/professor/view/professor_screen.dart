@@ -5,7 +5,6 @@ import 'package:intl/intl.dart';
 import 'package:project/constants/default.dart';
 import 'package:project/constants/gaps.dart';
 import 'package:project/constants/sizes.dart';
-import 'package:project/feature/consultationcase/viewmodel/consultingexample_vm.dart';
 import 'package:project/feature/consultationcase/widgets/consultantexample_box.dart';
 import 'package:project/feature/professor/viewmodel/expert_consultation_options_vm.dart';
 import 'package:project/feature/professor/viewmodel/professor_schedule_vm.dart';
@@ -1119,9 +1118,7 @@ class _ProfessorScreenState extends ConsumerState<ProfessorScreen>
                         count: 3,
                         time: 30,
                         views: 16,
-                        onTap: () {
-                          ref.read(screenProvider.notifier).state = true;
-                        },
+                        onTap: () {},
                       ),
                     ),
                   ),
