@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:project/common/widgets/navigation_state.dart';
 import 'package:project/feature/consultationcase/view/consultingexample_screen.dart';
 import 'package:project/common/viewmodel/main_navigation_vm.dart';
 import 'package:project/common/widgets/bottomnavigationBar.dart';
@@ -68,18 +70,14 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen>
 
     //_tabController addlistener를 통해 tabBar를 조정
     _tabController.addListener(() {
-      if (!_tabController.indexIsChanging) {
-        ref.read(tabControllerIndexProvider.notifier).state =
-            _tabController.index;
-        final tabIndex = ref.read(tabControllerIndexProvider.notifier).state;
+      if (!_tabController.indexIsChanging &&
+          _tabController.previousIndex != _tabController.index) {
         ref
             .read(mainNavigationViewModelProvider.notifier)
-            .setTabBarSelectedIndex(tabIndex);
+            .setTabBarSelectedIndex(_tabController.index);
       }
     });
   }
-
-//상담사례에서 내용전체보기 위한 값
 
 // bottomNavigationBar index에 따라서 Screen변화를 주기 위한 함수
 
@@ -87,34 +85,11 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen>
     final mainNavProvider = ref.read(mainNavigationViewModelProvider.notifier);
     final mainNavCurrentState = ref.read(mainNavigationViewModelProvider);
 
-    if (index == 0) {
-      if (mainNavCurrentState.navigationBarSelectedIndex == 0) {
-        // '홈' 탭을 한 번 더 눌렀을 때, 강제로 홈 화면 리셋
+    if (index == 0 && mainNavCurrentState.navigationBarSelectedIndex == 0) {
+      // '홈' 탭을 한 번 더 눌렀을 때, 강제로 홈 화면 리셋
 
-        _tabController.animateTo(index);
-        ref.read(tabControllerIndexProvider.notifier).state = 0;
-      } else if (mainNavProvider.wasProfessorTabPreviouslySelected) {
-        ref.read(tabControllerIndexProvider.notifier).state =
-            2; // 이전에 '전문가' 탭 선택 로직
-      } else {
-        // '전문가' 탭이 이전에 선택되지 않았다면, '홈' 인덱스로 설정
-        mainNavProvider.setTabBarSelectedIndex(0);
-      }
-    } else {
-      // 다른 탭 로직 처리
-
-      mainNavProvider.setNavigationBarSelectedIndex(index);
-    }
-
-    // 선택된 탭이 이미 활성화된 탭과 동일하면, tabBarSelectedIndex를 0으로 설정
-    if (index ==
-            ref
-                .read(mainNavigationViewModelProvider)
-                .navigationBarSelectedIndex &&
-        index == 0) {
+      _tabController.animateTo(index);
       mainNavProvider.setTabBarSelectedIndex(0);
-
-      ref.read(tabControllerIndexProvider.notifier).state = 0;
     }
 
     // 항상 navigationBarSelectedIndex를 업데이트
@@ -142,6 +117,54 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen>
     FocusScope.of(context).unfocus();
   }
 
+  NavigationState popNavigationState() {
+    final navigationHistory =
+        ref.read(mainNavigationViewModelProvider.notifier).navigationHistory;
+    if (navigationHistory.isNotEmpty) {
+      return navigationHistory.removeLast();
+    }
+    // 로직에 따라 기본 상태 혹은 오류 처리 반환
+    return NavigationState(0, 0); // 안전한 기본 상태 반환
+  }
+
+  void handlePopScope(bool didPop, BuildContext context) {
+    final navigationHistory =
+        ref.read(mainNavigationViewModelProvider.notifier).navigationHistory;
+
+    if (navigationHistory.length > 1) {
+      // 최소 두 개의 항목이 있을 때만 pop 실행
+      navigationHistory.removeLast(); // 현재 상태 제거
+      NavigationState newCurrentState = navigationHistory.last; // 새로운 현재 상태
+      _tabController
+          .animateTo(newCurrentState.tabIndex); // 새로운 현재 상태로 탭 컨트롤러 이동
+    } else {
+      // 뒤로 갈 이력이 없을 때의 처리, 예: 앱 종료 확인
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text("Exit"),
+            content: const Text("Do you really want to exit the app?"),
+            actions: <Widget>[
+              TextButton(
+                child: const Text("No"),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+              TextButton(
+                child: const Text("Yes"),
+                onPressed: () {
+                  SystemNavigator.pop();
+                },
+              )
+            ],
+          );
+        },
+      );
+    }
+  }
+
   @override
   void dispose() {
     _tabController.dispose();
@@ -151,11 +174,7 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen>
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(mainNavigationViewModelProvider);
-    final mainNavigationViewModel =
-        ref.watch(mainNavigationViewModelProvider.notifier);
-    print("canpop : ${mainNavigationViewModel.canPop}");
-    print("tabhistory : ${mainNavigationViewModel.tabHistory}");
-    print("nav : ${mainNavigationViewModel.navigationBarHistory}");
+
     final bottomNavIndex = state
         .navigationBarSelectedIndex; // tab에 따라서 MainNavigationModel의 navigationBarSelectedIndex값이 변하고 그게 tabindex
 
@@ -168,9 +187,14 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen>
         child: buildBottomNavigationBar(bottomNavIndex, ref));
 
     return PopScope(
-      canPop: mainNavigationViewModel.canPop,
-      onPopInvoked: (didPop) =>
-          mainNavigationViewModel.handlePopScope(didPop, context),
+      canPop: false,
+      onPopInvoked: (bool didPop) {
+        if (!didPop) {
+          handlePopScope(didPop, context);
+        } else {
+          // 팝을 수행할 수 없을 때의 로직, 예를 들어 경고 메시지 표시
+        }
+      },
       child: GestureDetector(
         onTap: _onbodyTap,
         child: Scaffold(

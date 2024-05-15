@@ -10,8 +10,9 @@ import 'package:project/common/viewmodel/main_navigation_vm.dart';
 import 'package:project/constants/default.dart';
 import 'package:project/constants/gaps.dart';
 import 'package:project/constants/sizes.dart';
-import 'package:project/feature/consultationcase/view/pet_select_screen.dart';
+import 'package:project/feature/consultationcase/view/pet_edit_screen.dart';
 import 'package:project/feature/consultationcase/viewmodel/consultingexample_vm.dart';
+import 'package:project/feature/consultationcase/widgets/%08consultant_requirement_text.dart';
 import 'package:project/feature/mypage/pets/model/pet_model.dart';
 import 'package:project/feature/mypage/pets/viewmodel/pet_navigation_vm.dart';
 import 'package:project/feature/mypage/pets/viewmodel/pet_select_vm.dart';
@@ -42,6 +43,7 @@ class _ConsultationWritingScreenState
   bool _titleisWriting = false;
   bool _contentisWriting = false;
   File? _image;
+  bool hasNavigated = false;
   final ImagePicker _picker = ImagePicker();
   final List<File> _images = [];
 
@@ -51,17 +53,6 @@ class _ConsultationWritingScreenState
   @override
   void initState() {
     super.initState();
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      // 상담글 작성 화면 로드 시 반려동물 선택 화면으로 이동
-
-      if (ref
-              .read(mainNavigationViewModelProvider)
-              .navigationBarSelectedIndex ==
-          2) {
-        _navigateToPetEditScreen(context);
-      }
-    });
 
     _titleEditingController.addListener(() {
       _title = _titleEditingController.text;
@@ -146,9 +137,7 @@ class _ConsultationWritingScreenState
         state.setNavigationBarSelectedIndex(0);
       }
     } else {
-      // 내용이 없다면 바로 이전 화면으로 돌아감
-      final state = ref.read(mainNavigationViewModelProvider.notifier);
-      state.setNavigationBarSelectedIndex(0);
+      return;
     }
   }
 
@@ -299,6 +288,8 @@ class _ConsultationWritingScreenState
     // 반려동물이 선택되었는지 확인
     final isPetSelected = petSelect == true;
 
+    print("isPetSelected :  $isPetSelected");
+
     // 선택된 반려동물이 있으면 정보 표시 및 다음 단계 로직 진행
 
     // PetEditScreen으로 이동. 반려동물 선택 완료 후, 전문가 선택 모달창을 표시하도록 구현 예정
@@ -340,7 +331,8 @@ class _ConsultationWritingScreenState
 
   @override
   Widget build(BuildContext context) {
-    // 선택된 반려동물의 인덱스를 가져옵니다.
+    final currentIndex =
+        ref.watch(mainNavigationViewModelProvider).navigationBarSelectedIndex;
     final selectedPetIndex = ref.watch(petEditViewModelProvider);
     final petList = ref.watch(petNavigationProvider);
     final expertType = ref.watch(expertTypeProvider);
@@ -348,8 +340,20 @@ class _ConsultationWritingScreenState
 
     PetModel? selectedPet;
 
+    if (currentIndex != 2) {
+      hasNavigated = false; // 인덱스가 2가 아닐 때 hasNavigated를 false로 리셋
+    } else if (!hasNavigated) {
+      Future.microtask(
+        () {
+          _navigateToPetEditScreen(context);
+          hasNavigated = true;
+          print("hasNavigated : $hasNavigated");
+        },
+      );
+    }
+
     return petList.when(
-      loading: () => const CircularProgressIndicator(),
+      loading: () => const Center(child: CircularProgressIndicator()),
       error: (error, stack) => Text('Error: $error'),
       data: (data) {
         if (selectedPetIndex >= 0 && selectedPetIndex < data.length) {
@@ -493,9 +497,9 @@ class _ConsultationWritingScreenState
                       key: _titleKey,
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Row(
+                        const Row(
                           children: [
-                            const Text(
+                            Text(
                               "제목",
                               style: TextStyle(
                                 fontSize: 20,
@@ -503,36 +507,8 @@ class _ConsultationWritingScreenState
                               ),
                             ),
                             Gaps.h5,
-                            Text(
-                              "(10자 이상",
-                              style: TextStyle(
-                                fontSize: Theme.of(context)
-                                    .textTheme
-                                    .titleMedium!
-                                    .fontSize,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.grey.shade400,
-                              ),
-                            ),
-                            const Text(
-                              "*",
-                              style: TextStyle(
-                                fontSize: Sizes.size20,
-                                color: Color(
-                                  0xFFC78D20,
-                                ),
-                              ),
-                            ),
-                            Text(
-                              ")",
-                              style: TextStyle(
-                                fontSize: Theme.of(context)
-                                    .textTheme
-                                    .titleMedium!
-                                    .fontSize,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.grey.shade400,
-                              ),
+                            CharacterRequirementText(
+                              characterCount: 10,
                             ),
                           ],
                         ),
@@ -571,9 +547,9 @@ class _ConsultationWritingScreenState
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Row(
+                        const Row(
                           children: [
-                            const Text(
+                            Text(
                               "내용",
                               style: TextStyle(
                                 fontSize: Sizes.size18,
@@ -581,36 +557,8 @@ class _ConsultationWritingScreenState
                               ),
                             ),
                             Gaps.h5,
-                            Text(
-                              "(200자 이상",
-                              style: TextStyle(
-                                fontSize: Theme.of(context)
-                                    .textTheme
-                                    .titleMedium!
-                                    .fontSize,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.grey.shade400,
-                              ),
-                            ),
-                            const Text(
-                              "*",
-                              style: TextStyle(
-                                fontSize: Sizes.size18,
-                                color: Color(
-                                  0xFFC78D20,
-                                ),
-                              ),
-                            ),
-                            Text(
-                              ")",
-                              style: TextStyle(
-                                fontSize: Theme.of(context)
-                                    .textTheme
-                                    .titleMedium!
-                                    .fontSize,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.grey.shade400,
-                              ),
+                            CharacterRequirementText(
+                              characterCount: 200,
                             ),
                           ],
                         ),
