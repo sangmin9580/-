@@ -2,6 +2,7 @@ class ConsultationWritingModel {
   ConsultationWritingModel({
     required this.consultationId,
     required this.petId,
+    required this.expertType,
     required this.specialty,
     required this.title,
     required this.description,
@@ -11,6 +12,7 @@ class ConsultationWritingModel {
 
   final String consultationId;
   final String petId;
+  final String expertType;
   final String specialty; // 상담 분야
   final String title; // 상담 제목
   final String description; // 상담 내용
@@ -21,6 +23,7 @@ class ConsultationWritingModel {
   ConsultationWritingModel.empty()
       : consultationId = "",
         petId = "",
+        expertType = "",
         specialty = "",
         title = "",
         description = "",
@@ -31,6 +34,7 @@ class ConsultationWritingModel {
   ConsultationWritingModel copyWith({
     String? consultationId,
     String? petId,
+    String? expertType,
     String? specialty,
     String? title,
     String? description,
@@ -39,6 +43,7 @@ class ConsultationWritingModel {
   }) {
     return ConsultationWritingModel(
       consultationId: consultationId ?? this.consultationId,
+      expertType: expertType ?? this.expertType,
       petId: petId ?? this.petId,
       specialty: specialty ?? this.specialty,
       title: title ?? this.title,
@@ -53,6 +58,7 @@ class ConsultationWritingModel {
     return {
       "consultationId": consultationId,
       'petId': petId,
+      "expertType": expertType,
       'specialty': specialty,
       'title': title,
       'description': description,
@@ -64,6 +70,7 @@ class ConsultationWritingModel {
   // JSON에서 모델 생성
   ConsultationWritingModel.fromJson(Map<String, dynamic> json)
       : consultationId = json['consultationId'],
+        expertType = json['expertType'],
         petId = json['petId'],
         specialty = json['specialty'],
         title = json['title'],

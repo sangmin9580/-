@@ -91,7 +91,7 @@ class PetInfoViewModel extends AsyncNotifier<void> {
               onPressed: () {
                 Navigator.of(context).pop(); // 대화상자 닫기
                 goToMyPage(context);
-                print("1"); // 인덱스 3으로 이동
+                print("111"); // 인덱스 3으로 이동
               },
             ),
             TextButton(

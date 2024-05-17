@@ -10,6 +10,7 @@ class MypageViewModel extends Notifier<void> {
   void gotoHomeScreen() {
     final tabindex = ref.read(mainNavigationViewModelProvider.notifier);
     tabindex.setNavigationBarSelectedIndex(0);
+    print("10");
   }
 }
 

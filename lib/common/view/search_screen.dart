@@ -95,6 +95,8 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
   }
 
   void _onBackbuttonTap() {
+    print("3");
+
     ref
         .read(mainNavigationViewModelProvider.notifier)
         .setNavigationBarSelectedIndex(0);

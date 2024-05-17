@@ -13,6 +13,7 @@ class MypageMoveViewModel extends Notifier<void> {
   void gotoHomeScreen() {
     final tabindex = ref.read(mainNavigationViewModelProvider.notifier);
     tabindex.setNavigationBarSelectedIndex(0);
+    print("9");
   }
 
   void goToMyPage(BuildContext context) {

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -22,56 +23,98 @@ class HomepageScreen extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          TextField(
-            decoration: InputDecoration(
-              fillColor: Colors.white,
-              prefixIcon: const Padding(
-                padding: EdgeInsets.symmetric(
-                  vertical: Sizes.size14,
-                  horizontal: Sizes.size10,
-                ),
-                child: FaIcon(
-                  FontAwesomeIcons.magnifyingGlass,
-                  color: Color(0xFFE6C483),
-                ),
-              ),
-              contentPadding: const EdgeInsets.symmetric(
-                vertical: Sizes.size14,
+          GestureDetector(
+            onTap: () {
+              ref
+                  .read(mainNavigationViewModelProvider.notifier)
+                  .setNavigationBarSelectedIndex(1);
+
+              return;
+            },
+            child: Container(
+              padding: const EdgeInsets.symmetric(
+                vertical: Sizes.size10,
                 horizontal: Sizes.size10,
               ),
-              hintText: "도움이 필요하신가요?",
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(
-                  20,
+              width: MediaQuery.of(context).size.width,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  width: 1,
+                  color: const Color(0xFFE6C483),
                 ),
               ),
-              focusedBorder: OutlineInputBorder(
-                borderSide: const BorderSide(
-                    color: Color(
-                      0xFFC78D20,
+              child: const Row(
+                children: [
+                  FaIcon(
+                    FontAwesomeIcons.magnifyingGlass,
+                    color: Color(0xFFE6C483),
+                  ),
+                  Gaps.h20,
+                  Text(
+                    "도움이 필요하신가요?",
+                    style: TextStyle(
+                      color: Colors.black87,
+                      fontSize: Sizes.size16,
                     ),
-                    width: 2.0),
-                borderRadius: BorderRadius.circular(22),
-              ),
-              // 입력 필드가 활성화되었을 때(선택되었을 때)의 테두리 스타일을 설정할 수 있습니다.
-              enabledBorder: OutlineInputBorder(
-                borderSide: const BorderSide(
-                    color: Color(
-                      0xFFE6C483,
-                    ),
-                    width: 1.0),
-                borderRadius: BorderRadius.circular(22),
+                  )
+                ],
               ),
             ),
           ),
+          // TextField(
+          //   decoration: InputDecoration(
+          //     fillColor: Colors.white,
+          //     prefixIcon: const Padding(
+          //       padding: EdgeInsets.symmetric(
+          //         vertical: Sizes.size14,
+          //         horizontal: Sizes.size10,
+          //       ),
+          //       child: FaIcon(
+          //         FontAwesomeIcons.magnifyingGlass,
+          //         color: Color(0xFFE6C483),
+          //       ),
+          //     ),
+          //     contentPadding: const EdgeInsets.symmetric(
+          //       vertical: Sizes.size14,
+          //       horizontal: Sizes.size10,
+          //     ),
+          //     hintText: "도움이 필요하신가요?",
+          //     border: OutlineInputBorder(
+          //       borderRadius: BorderRadius.circular(
+          //         20,
+          //       ),
+          //     ),
+          //     focusedBorder: OutlineInputBorder(
+          //       borderSide: const BorderSide(
+          //           color: Color(
+          //             0xFFC78D20,
+          //           ),
+          //           width: 2.0),
+          //       borderRadius: BorderRadius.circular(22),
+          //     ),
+          //     // 입력 필드가 활성화되었을 때(선택되었을 때)의 테두리 스타일을 설정할 수 있습니다.
+          //     enabledBorder: OutlineInputBorder(
+          //       borderSide: const BorderSide(
+          //           color: Color(
+          //             0xFFE6C483,
+          //           ),
+          //           width: 1.0),
+          //       borderRadius: BorderRadius.circular(22),
+          //     ),
+          //   ),
+          // ),
           Gaps.v20,
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               GestureDetector(
-                onTap: () => ref
-                    .read(mainNavigationViewModelProvider.notifier)
-                    .setTabBarSelectedIndex(2),
+                onTap: () {
+                  ref
+                      .read(mainNavigationViewModelProvider.notifier)
+                      .setTabBarSelectedIndex(2);
+                  print("903");
+                },
                 child: const ApplyButton(
                   text: "상담예약",
                   icon: FontAwesomeIcons.calendarCheck,

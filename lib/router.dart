@@ -26,6 +26,7 @@ final routerProvider = Provider.family<GoRouter, bool>(
         }
         return null;
       },
+
       debugLogDiagnostics: true, // 디버그 로깅 활성화
       routes: [
         // 동의 화면에 해당하는 GoRoute 추가 (ConsentScreen 구현 필요)

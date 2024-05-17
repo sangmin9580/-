@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:project/common/view/main_navigation_screen.dart';
 import 'package:project/common/viewmodel/main_navigation_vm.dart';
+import 'package:project/common/viewmodel/navigation_history_state_vm.dart';
 import 'package:project/constants/default.dart';
 import 'package:project/constants/gaps.dart';
 import 'package:project/constants/sizes.dart';
@@ -30,22 +31,23 @@ class _ConsultationWritingScreenState
     extends ConsumerState<ConsultationWritingScreen> {
   late final TextEditingController _titleEditingController =
       TextEditingController();
-
   late final TextEditingController _contentEditingController =
       TextEditingController();
-
   final TextEditingController _expertTypeController = TextEditingController();
   final TextEditingController _consultationTopicController =
       TextEditingController();
 
   String _title = " ";
   String _content = "";
+  String _expertType = '';
+  String _consultationTopic = '';
+  final List<File> _images = [];
   bool _titleisWriting = false;
   bool _contentisWriting = false;
-  File? _image;
   bool hasNavigated = false;
+
+  File? _image;
   final ImagePicker _picker = ImagePicker();
-  final List<File> _images = [];
 
   // 위치 조정을 위한 key
   final GlobalKey _titleKey = GlobalKey();
@@ -84,18 +86,54 @@ class _ConsultationWritingScreenState
     });
   }
 
-  void _scrollToGlobalKey(GlobalKey key) async {
-    final context = key.currentContext;
-    if (context != null) {
-      await Scrollable.ensureVisible(context,
-          duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
-    }
-  }
-
   void _onSignUpTap() {
     context.go(
       MainNavigationScreen.routeURL,
     );
+  }
+
+  void _showBackDialog() {
+    final state = ref.read(mainNavigationViewModelProvider.notifier);
+
+    if (_titleEditingController.text.isNotEmpty ||
+        _contentEditingController.text.isNotEmpty ||
+        _expertType.isNotEmpty ||
+        _consultationTopic.isNotEmpty ||
+        _images.isNotEmpty) {
+      showDialog<void>(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('변경사항을 포기하시겠습니까?'),
+            content: const Text('입력한 내용이 저장되지 않고 사라집니다.'),
+            actions: <Widget>[
+              TextButton(
+                child: const Text('취소'),
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+              ),
+              TextButton(
+                child: const Text('확인'),
+                onPressed: () {
+                  _titleEditingController.clear();
+                  _contentEditingController.clear();
+                  _expertType = '';
+                  _consultationTopic = '';
+                  _images.clear();
+                  Navigator.pop(context); // 닫기 다이얼로그
+                  state.setNavigationBarSelectedIndex(0);
+                },
+              ),
+            ],
+          );
+        },
+      );
+    } else {
+      if (!ref.read(isPopNavigationProvider.notifier).state) {
+        state.setNavigationBarSelectedIndex(0);
+      }
+    }
   }
 
   void _onBackbuttonTap() async {
@@ -142,7 +180,7 @@ class _ConsultationWritingScreenState
   }
 
   void _ontitleStartWriting(GlobalKey key) {
-    _scrollToGlobalKey(_titleKey);
+    //_scrollToGlobalKey(_titleKey);
 
     setState(() {
       _titleisWriting = true;
@@ -288,8 +326,6 @@ class _ConsultationWritingScreenState
     // 반려동물이 선택되었는지 확인
     final isPetSelected = petSelect == true;
 
-    print("isPetSelected :  $isPetSelected");
-
     // 선택된 반려동물이 있으면 정보 표시 및 다음 단계 로직 진행
 
     // PetEditScreen으로 이동. 반려동물 선택 완료 후, 전문가 선택 모달창을 표시하도록 구현 예정
@@ -366,343 +402,356 @@ class _ConsultationWritingScreenState
 
         return GestureDetector(
           onTap: _onbodyTap,
-          child: Scaffold(
-            appBar: AppBar(
-              title: Row(
-                children: [
-                  GestureDetector(
-                    onTap: _onBackbuttonTap,
-                    child: const SizedBox(
-                      width: Sizes.size32,
-                      child: FaIcon(
-                        FontAwesomeIcons.chevronLeft,
-                        size: Sizes.size20,
-                      ),
-                    ),
-                  ),
-                  const Text(
-                    "상담글 작성",
-                    style: TextStyle(
-                      fontSize: Sizes.size20,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
-              ),
-              actions: [
-                GestureDetector(
-                  onTap: _onSignUpTap,
-                  child: SizedBox(
-                    width: Sizes.size64,
-                    child: Text(
-                      "등록하기",
-                      style: TextStyle(
-                        fontWeight:
-                            _canSignup() ? FontWeight.bold : FontWeight.w500,
-                        fontSize:
-                            Theme.of(context).textTheme.titleMedium!.fontSize,
-                        color: _canSignup()
-                            ? const Color(0xFFC78D20)
-                            : Colors.grey.shade500,
-                      ),
-                    ),
-                  ),
-                ),
-                Gaps.h20,
-              ],
-            ),
-            body: SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  vertical: verticalPadding,
-                  horizontal: horizontalPadding,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+          child: PopScope(
+            canPop: false,
+            onPopInvoked: (didPop) {
+              if (!didPop &&
+                  ref
+                          .read(mainNavigationViewModelProvider)
+                          .navigationBarSelectedIndex ==
+                      2) {
+                _showBackDialog();
+              }
+            },
+            child: Scaffold(
+              appBar: AppBar(
+                title: Row(
                   children: [
+                    GestureDetector(
+                      onTap: _showBackDialog,
+                      child: const SizedBox(
+                        width: Sizes.size32,
+                        child: FaIcon(
+                          FontAwesomeIcons.chevronLeft,
+                          size: Sizes.size20,
+                        ),
+                      ),
+                    ),
                     const Text(
-                      "전문가 상담",
+                      "상담글 작성",
                       style: TextStyle(
-                        fontSize: Sizes.size18,
+                        fontSize: Sizes.size20,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
-                    Gaps.v10,
-                    if (selectedPet != null)
-                      GestureDetector(
-                        onTap: _onPetBoxTap,
-                        child: PetInformationBox(
-                          name: selectedPet!.name,
-                          age: selectedPet!.getAge(),
-                          breed: selectedPet!.breed,
-                          bio: selectedPet!.gender,
-                          weight: selectedPet!.weight,
+                  ],
+                ),
+                actions: [
+                  GestureDetector(
+                    onTap: _onSignUpTap,
+                    child: SizedBox(
+                      width: Sizes.size64,
+                      child: Text(
+                        "등록하기",
+                        style: TextStyle(
+                          fontWeight:
+                              _canSignup() ? FontWeight.bold : FontWeight.w500,
+                          fontSize:
+                              Theme.of(context).textTheme.titleMedium!.fontSize,
+                          color: _canSignup()
+                              ? const Color(0xFFC78D20)
+                              : Colors.grey.shade500,
                         ),
                       ),
-
-                    Gaps.v10,
-                    const Text("전문가와 상담주제를 선택해주세요"),
-                    Gaps.v20,
-                    Row(
-                      children: [
-                        Expanded(
-                          child: TextField(
-                            controller: _expertTypeController,
-                            readOnly: true, // 사용자 입력을 막고 탭하여 모달창을 표시하도록 합니다.
-                            decoration: InputDecoration(
-                              labelText: '전문가 유형',
-                              suffixIcon: IconButton(
-                                icon: const Icon(Icons.arrow_drop_down),
-                                onPressed: () {
-                                  _showExpertSelectionModal(context);
-                                },
-                              ),
-                            ),
-                          ),
-                        ),
-                        Gaps.h16, // 상담 주제 선택 필드
-                        Expanded(
-                          child: TextField(
-                            controller: _consultationTopicController,
-                            readOnly: true, // 사용자 입력을 막고 탭하여 모달창을 표시하도록 합니다.
-                            decoration: InputDecoration(
-                              labelText: '상담 주제',
-                              suffixIcon: IconButton(
-                                icon: const Icon(Icons.arrow_drop_down),
-                                onPressed: () {
-                                  // 전문가 유형이 선택되었는지 확인하고, 선택된 유형에 따라 주제 선택 모달을 표시합니다.
-                                  final expertType =
-                                      ref.read(expertTypeProvider);
-                                  if (expertType != null) {
-                                    _showConsultationTopicSelectionModal(
-                                        context, expertType);
-                                  } else {
-                                    // 사용자에게 먼저 전문가 유형을 선택하도록 안내합니다.
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text('먼저 전문가 유형을 선택해주세요.'),
-                                      ),
-                                    );
-                                  }
-                                },
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
                     ),
-                    Gaps.v20,
-                    // 제목(10자 이상*)과 textfield
-                    Row(
-                      key: _titleKey,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Row(
-                          children: [
-                            Text(
-                              "제목",
-                              style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            Gaps.h5,
-                            CharacterRequirementText(
-                              characterCount: 10,
-                            ),
-                          ],
+                  ),
+                  Gaps.h20,
+                ],
+              ),
+              body: SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    vertical: verticalPadding,
+                    horizontal: horizontalPadding,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        "전문가 상담",
+                        style: TextStyle(
+                          fontSize: Sizes.size18,
+                          fontWeight: FontWeight.w600,
                         ),
-                        if (_titleisWriting)
-                          RichText(
-                            text: TextSpan(
-                              text: "${_title.length}",
-                              style: const TextStyle(
-                                fontWeight: FontWeight.w600,
-                                color: Color(
-                                  0xFFC78D20,
+                      ),
+                      Gaps.v10,
+                      if (selectedPet != null)
+                        GestureDetector(
+                          onTap: _onPetBoxTap,
+                          child: PetInformationBox(
+                            name: selectedPet!.name,
+                            age: selectedPet!.getAge(),
+                            breed: selectedPet!.breed,
+                            bio: selectedPet!.gender,
+                            weight: selectedPet!.weight,
+                          ),
+                        ),
+
+                      Gaps.v10,
+                      const Text("전문가와 상담주제를 선택해주세요"),
+                      Gaps.v20,
+                      Row(
+                        children: [
+                          Expanded(
+                            child: TextField(
+                              controller: _expertTypeController,
+                              readOnly: true, // 사용자 입력을 막고 탭하여 모달창을 표시하도록 합니다.
+                              decoration: InputDecoration(
+                                labelText: '전문가 유형',
+                                suffixIcon: IconButton(
+                                  icon: const Icon(Icons.arrow_drop_down),
+                                  onPressed: () {
+                                    _showExpertSelectionModal(context);
+                                  },
                                 ),
                               ),
-                              children: const [
-                                TextSpan(
-                                  text: "/50자",
-                                  style: TextStyle(
-                                    color: Colors.black,
-                                    fontWeight: FontWeight.normal,
+                            ),
+                          ),
+                          Gaps.h16, // 상담 주제 선택 필드
+                          Expanded(
+                            child: TextField(
+                              controller: _consultationTopicController,
+                              readOnly: true, // 사용자 입력을 막고 탭하여 모달창을 표시하도록 합니다.
+                              decoration: InputDecoration(
+                                labelText: '상담 주제',
+                                suffixIcon: IconButton(
+                                  icon: const Icon(Icons.arrow_drop_down),
+                                  onPressed: () {
+                                    // 전문가 유형이 선택되었는지 확인하고, 선택된 유형에 따라 주제 선택 모달을 표시합니다.
+                                    final expertType =
+                                        ref.read(expertTypeProvider);
+                                    if (expertType != null) {
+                                      _showConsultationTopicSelectionModal(
+                                          context, expertType);
+                                    } else {
+                                      // 사용자에게 먼저 전문가 유형을 선택하도록 안내합니다.
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        const SnackBar(
+                                          content: Text('먼저 전문가 유형을 선택해주세요.'),
+                                        ),
+                                      );
+                                    }
+                                  },
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      Gaps.v20,
+                      // 제목(10자 이상*)과 textfield
+                      Row(
+                        key: _titleKey,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Row(
+                            children: [
+                              Text(
+                                "제목",
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              Gaps.h5,
+                              CharacterRequirementText(
+                                characterCount: 10,
+                              ),
+                            ],
+                          ),
+                          if (_titleisWriting)
+                            RichText(
+                              text: TextSpan(
+                                text: "${_title.length}",
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  color: Color(
+                                    0xFFC78D20,
                                   ),
                                 ),
-                              ],
-                            ),
-                          ),
-                      ],
-                    ),
-                    Gaps.v10,
-
-                    TextField(
-                      onTap: () => _ontitleStartWriting(_titleKey),
-                      controller: _titleEditingController,
-                      decoration: const InputDecoration(
-                          hintText: "1개의 질문을 구체적으로 해주세요."),
-                    ),
-                    Gaps.v32,
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Row(
-                          children: [
-                            Text(
-                              "내용",
-                              style: TextStyle(
-                                fontSize: Sizes.size18,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            Gaps.h5,
-                            CharacterRequirementText(
-                              characterCount: 200,
-                            ),
-                          ],
-                        ),
-                        if (_contentisWriting)
-                          RichText(
-                            text: TextSpan(
-                              text: "${_content.length}",
-                              style: const TextStyle(
-                                fontWeight: FontWeight.w600,
-                                color: Color(
-                                  0xFFC78D20,
-                                ),
-                              ),
-                              children: const [
-                                TextSpan(
-                                    text: "/200자",
+                                children: const [
+                                  TextSpan(
+                                    text: "/50자",
                                     style: TextStyle(
                                       color: Colors.black,
                                       fontWeight: FontWeight.normal,
-                                    )),
-                              ],
-                            ),
-                          ),
-                      ],
-                    ),
-                    Gaps.v10,
-                    if (_image != null)
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Image.file(_image!),
-                      ),
-                    Wrap(
-                      children: _images.asMap().entries.map(
-                        (entry) {
-                          int index = entry.key;
-                          File image = entry.value;
-                          return Stack(
-                            alignment: Alignment.topRight,
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.all(4.0),
-                                child: Image.file(
-                                  image,
-                                  width: 100,
-                                  height: 100,
-                                  fit: BoxFit.cover,
-                                ),
-                              ),
-                              IconButton(
-                                icon: const Icon(Icons.close),
-                                onPressed: () => _removeImage(index),
-                              ),
-                            ],
-                          );
-                        },
-                      ).toList(),
-                    ),
-                    ElevatedButton(
-                      onPressed: _pickImage,
-                      child: Text('이미지 추가 (${_images.length}/5)'),
-                    ),
-                    // 내용(200자 이상*)과 textfield
-                    Gaps.v10,
-                    TextField(
-                      onTap: _oncontentStartWriting,
-                      controller: _contentEditingController,
-                      maxLines: null,
-                      minLines: 8,
-                      decoration:
-                          const InputDecoration(hintText: "구체적으로 작성부탁드려요."),
-                    ),
-                    Gaps.v56,
-                    Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(
-                          10,
-                        ),
-                        color: const Color(
-                          0xFFBCBCA8,
-                        ),
-                      ),
-                      width: MediaQuery.of(context).size.width,
-                      height: MediaQuery.of(context).size.width * 0.85,
-                      child: const Padding(
-                        padding: EdgeInsets.symmetric(
-                          vertical: verticalPadding,
-                          horizontal: horizontalPadding,
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "상담글 등록 전 필수 안내사항",
-                              style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: Sizes.size16,
-                              ),
-                            ),
-                            Gaps.v14,
-                            DefaultTextStyle(
-                              style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                color: Colors.black54,
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    "1. 상담글 제목은 답변을 받기에 적합한 내용으로 일부 변경될 수 있습니다.",
-                                  ),
-                                  Gaps.v14,
-                                  Text(
-                                    "2. 상담글에 전문가 답변 등록시 글 삭제가 불가합니다.",
-                                  ),
-                                  Gaps.v14,
-                                  Text(
-                                    "3. 등록된 글은 네이버 지식인, 포털 사이트, 멍선생 사이트에 내용이 공개됩니다.",
-                                  ),
-                                  Gaps.v14,
-                                  Text(
-                                    "4. 아래 사항에 해당할 경우, 서비스 이용이 제한될 수 있습니다.",
+                                    ),
                                   ),
                                 ],
                               ),
                             ),
-                            Gaps.v14,
-                            Padding(
-                              padding: EdgeInsets.only(
-                                left: Sizes.size12,
-                              ),
-                              child: Text(
-                                "개인정보(개인 실명, 전화번호, 주민번호, 주소, 아이디 등) 및 외부 링크 포함",
+                        ],
+                      ),
+                      Gaps.v10,
+
+                      TextField(
+                        onTap: () => _ontitleStartWriting(_titleKey),
+                        controller: _titleEditingController,
+                        decoration: const InputDecoration(
+                            hintText: "1개의 질문을 구체적으로 해주세요."),
+                      ),
+                      Gaps.v32,
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Row(
+                            children: [
+                              Text(
+                                "내용",
                                 style: TextStyle(
-                                  color: Colors.black38,
-                                  fontWeight: FontWeight.bold,
+                                  fontSize: Sizes.size18,
+                                  fontWeight: FontWeight.w600,
                                 ),
-                                textAlign: TextAlign.start,
                               ),
-                            )
-                          ],
+                              Gaps.h5,
+                              CharacterRequirementText(
+                                characterCount: 200,
+                              ),
+                            ],
+                          ),
+                          if (_contentisWriting)
+                            RichText(
+                              text: TextSpan(
+                                text: "${_content.length}",
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  color: Color(
+                                    0xFFC78D20,
+                                  ),
+                                ),
+                                children: const [
+                                  TextSpan(
+                                      text: "/200자",
+                                      style: TextStyle(
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.normal,
+                                      )),
+                                ],
+                              ),
+                            ),
+                        ],
+                      ),
+                      Gaps.v10,
+                      if (_image != null)
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Image.file(_image!),
+                        ),
+                      Wrap(
+                        children: _images.asMap().entries.map(
+                          (entry) {
+                            int index = entry.key;
+                            File image = entry.value;
+                            return Stack(
+                              alignment: Alignment.topRight,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.all(4.0),
+                                  child: Image.file(
+                                    image,
+                                    width: 100,
+                                    height: 100,
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                                IconButton(
+                                  icon: const Icon(Icons.close),
+                                  onPressed: () => _removeImage(index),
+                                ),
+                              ],
+                            );
+                          },
+                        ).toList(),
+                      ),
+                      ElevatedButton(
+                        onPressed: _pickImage,
+                        child: Text('이미지 추가 (${_images.length}/5)'),
+                      ),
+                      // 내용(200자 이상*)과 textfield
+                      Gaps.v10,
+                      TextField(
+                        onTap: _oncontentStartWriting,
+                        controller: _contentEditingController,
+                        maxLines: null,
+                        minLines: 8,
+                        decoration:
+                            const InputDecoration(hintText: "구체적으로 작성부탁드려요."),
+                      ),
+                      Gaps.v56,
+                      Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(
+                            10,
+                          ),
+                          color: const Color(
+                            0xFFBCBCA8,
+                          ),
+                        ),
+                        width: MediaQuery.of(context).size.width,
+                        height: MediaQuery.of(context).size.width * 0.85,
+                        child: const Padding(
+                          padding: EdgeInsets.symmetric(
+                            vertical: verticalPadding,
+                            horizontal: horizontalPadding,
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "상담글 등록 전 필수 안내사항",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: Sizes.size16,
+                                ),
+                              ),
+                              Gaps.v14,
+                              DefaultTextStyle(
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.black54,
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      "1. 상담글 제목은 답변을 받기에 적합한 내용으로 일부 변경될 수 있습니다.",
+                                    ),
+                                    Gaps.v14,
+                                    Text(
+                                      "2. 상담글에 전문가 답변 등록시 글 삭제가 불가합니다.",
+                                    ),
+                                    Gaps.v14,
+                                    Text(
+                                      "3. 등록된 글은 네이버 지식인, 포털 사이트, 멍선생 사이트에 내용이 공개됩니다.",
+                                    ),
+                                    Gaps.v14,
+                                    Text(
+                                      "4. 아래 사항에 해당할 경우, 서비스 이용이 제한될 수 있습니다.",
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Gaps.v14,
+                              Padding(
+                                padding: EdgeInsets.only(
+                                  left: Sizes.size12,
+                                ),
+                                child: Text(
+                                  "개인정보(개인 실명, 전화번호, 주민번호, 주소, 아이디 등) 및 외부 링크 포함",
+                                  style: TextStyle(
+                                    color: Colors.black38,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                  textAlign: TextAlign.start,
+                                ),
+                              )
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -712,3 +761,14 @@ class _ConsultationWritingScreenState
     );
   }
 }
+
+
+
+// 일단 글로벌키 이건 빼자. 사용자 경험을 중시해야함. 내 수준에서는 일단 에러가 먹을 확률이 생김
+// void _scrollToGlobalKey(GlobalKey key) async {
+//     final context = key.currentContext;
+//     if (context != null) {
+//       await Scrollable.ensureVisible(context,
+//           duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
+//     }
+//   }

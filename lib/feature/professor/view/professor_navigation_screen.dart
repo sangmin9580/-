@@ -285,6 +285,7 @@ class _ProfessorNavigationScreenState
             ref
                 .read(mainNavigationViewModelProvider.notifier)
                 .setNavigationBarSelectedIndex(index); // 탭 인덱스 업데이트
+            print("11");
 
             if (index == 1) {
               Navigator.of(context).push(

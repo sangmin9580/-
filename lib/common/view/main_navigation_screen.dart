@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:project/common/widgets/navigation_state.dart';
+import 'package:project/common/viewmodel/navigation_history_state_vm.dart';
 import 'package:project/feature/consultationcase/view/consultingexample_screen.dart';
 import 'package:project/common/viewmodel/main_navigation_vm.dart';
 import 'package:project/common/widgets/bottomnavigationBar.dart';
@@ -60,6 +61,7 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen>
   void initState() {
     super.initState();
     final mainNavProvider = ref.read(mainNavigationViewModelProvider);
+    bool isInitialSetup = ref.read(isInitialSetupProvder);
 
     //_tabController 변경
     _tabController = TabController(
@@ -68,13 +70,25 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen>
       initialIndex: mainNavProvider.tabBarSelectedIndex,
     );
 
+    _tabController.animation!.addStatusListener((status) {
+      if (status == AnimationStatus.completed ||
+          status == AnimationStatus.dismissed) {
+        // 애니메이션이 완료되었을 때 isPop 상태를 false로 설정
+        ref.read(isPopNavigationProvider.notifier).state = false;
+      }
+    });
+
     //_tabController addlistener를 통해 tabBar를 조정
     _tabController.addListener(() {
+      print("isPop : ${ref.read(isPopNavigationProvider)}");
       if (!_tabController.indexIsChanging &&
-          _tabController.previousIndex != _tabController.index) {
+          _tabController.previousIndex != _tabController.index &&
+          !isInitialSetup) {
         ref
             .read(mainNavigationViewModelProvider.notifier)
             .setTabBarSelectedIndex(_tabController.index);
+        isInitialSetup = true;
+        print("901");
       }
     });
   }
@@ -82,6 +96,8 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen>
 // bottomNavigationBar index에 따라서 Screen변화를 주기 위한 함수
 
   void _onItemSelected(int index) {
+    print("_onItemSelected callback");
+
     final mainNavProvider = ref.read(mainNavigationViewModelProvider.notifier);
     final mainNavCurrentState = ref.read(mainNavigationViewModelProvider);
 
@@ -93,7 +109,10 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen>
     }
 
     // 항상 navigationBarSelectedIndex를 업데이트
-    mainNavProvider.setNavigationBarSelectedIndex(index);
+    if (!ref.read(isPopNavigationProvider.notifier).state) {
+      print("isPop:  ${!ref.read(isPopNavigationProvider.notifier).state}");
+      mainNavProvider.setNavigationBarSelectedIndex(index);
+    }
     // index를 업데이트할때 상담사례에서 빠져나오게 함.
     ref.read(currentScreenProvider.notifier).state = index;
   }
@@ -108,35 +127,41 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen>
 
   void _onAppbarTitleTap() {
     final state = ref.read(mainNavigationViewModelProvider.notifier);
+    print("2");
     state.setNavigationBarSelectedIndex(0);
     _tabController.animateTo(0);
     state.setTabBarSelectedIndex(0);
+    print("3");
   }
 
   void _onbodyTap() {
     FocusScope.of(context).unfocus();
   }
 
-  NavigationState popNavigationState() {
-    final navigationHistory =
-        ref.read(mainNavigationViewModelProvider.notifier).navigationHistory;
-    if (navigationHistory.isNotEmpty) {
-      return navigationHistory.removeLast();
-    }
-    // 로직에 따라 기본 상태 혹은 오류 처리 반환
-    return NavigationState(0, 0); // 안전한 기본 상태 반환
-  }
-
   void handlePopScope(bool didPop, BuildContext context) {
-    final navigationHistory =
-        ref.read(mainNavigationViewModelProvider.notifier).navigationHistory;
+    final MainNavigationViewModel =
+        ref.read(mainNavigationViewModelProvider.notifier);
+    final navHistory = ref.read(navigationHistoryProvider.notifier);
+    final navHistoryState = ref.read(navigationHistoryProvider);
 
-    if (navigationHistory.length > 1) {
+    ref.read(isPopNavigationProvider.notifier).state = true;
+    if (navHistoryState.length > 1) {
       // 최소 두 개의 항목이 있을 때만 pop 실행
-      navigationHistory.removeLast(); // 현재 상태 제거
-      NavigationState newCurrentState = navigationHistory.last; // 새로운 현재 상태
-      _tabController
-          .animateTo(newCurrentState.tabIndex); // 새로운 현재 상태로 탭 컨트롤러 이동
+      final navHistoryNewState = navHistoryState.sublist(
+          0, ref.read(navigationHistoryProvider).length - 1);
+      navHistory.setState(navHistoryNewState);
+
+      // 새로운 현재 상태
+      final lastIndexs = navHistoryNewState.last;
+
+      _tabController.animateTo(
+        lastIndexs.tabIndex,
+      ); // 새로운 현재 상태로 탭 컨트롤러 이동
+      MainNavigationViewModel.setTabBarSelectedIndex(lastIndexs.tabIndex,
+          isFromPop: true);
+      MainNavigationViewModel.setNavigationBarSelectedIndex(
+          lastIndexs.navBarIndex,
+          isFromPop: true);
     } else {
       // 뒤로 갈 이력이 없을 때의 처리, 예: 앱 종료 확인
       showDialog(
@@ -163,6 +188,9 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen>
         },
       );
     }
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      ref.read(isPopNavigationProvider.notifier).state = false;
+    });
   }
 
   @override
@@ -191,9 +219,7 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen>
       onPopInvoked: (bool didPop) {
         if (!didPop) {
           handlePopScope(didPop, context);
-        } else {
-          // 팝을 수행할 수 없을 때의 로직, 예를 들어 경고 메시지 표시
-        }
+        } else {}
       },
       child: GestureDetector(
         onTap: _onbodyTap,
@@ -234,6 +260,8 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen>
                             ref
                                 .read(mainNavigationViewModelProvider.notifier)
                                 .setTabBarSelectedIndex(index);
+                            print("902");
+
                             FocusScope.of(context).unfocus();
                           },
                           splashFactory: NoSplash.splashFactory,
