@@ -145,7 +145,10 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen>
     final navHistoryState = ref.read(navigationHistoryProvider);
 
     ref.read(isPopNavigationProvider.notifier).state = true;
+
     if (navHistoryState.length > 1) {
+      print("navHistoryState.length > 1");
+      print("$navHistoryState");
       // 최소 두 개의 항목이 있을 때만 pop 실행
       final navHistoryNewState = navHistoryState.sublist(
           0, ref.read(navigationHistoryProvider).length - 1);
@@ -202,10 +205,12 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen>
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(mainNavigationViewModelProvider);
-
+    final currentIndex = ref.read(currentScreenProvider);
+    final isConsultingScreenActive = currentIndex == 2; // 상담 화면의 인덱스를 2로 가정
     final bottomNavIndex = state
         .navigationBarSelectedIndex; // tab에 따라서 MainNavigationModel의 navigationBarSelectedIndex값이 변하고 그게 tabindex
-
+    print(
+        "ref.read(currentScreenProvider.notifier).state : ${ref.read(currentScreenProvider.notifier).state}");
     List<Widget> screens = _buildScreens();
 
     final bottomNavigationBar = Theme(
@@ -217,7 +222,7 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen>
     return PopScope(
       canPop: false,
       onPopInvoked: (bool didPop) {
-        if (!didPop) {
+        if (!didPop && !isConsultingScreenActive) {
           handlePopScope(didPop, context);
         } else {}
       },

@@ -1,9 +1,10 @@
 class ConsultationWritingModel {
   ConsultationWritingModel({
     required this.consultationId,
+    required this.userId,
     required this.petId,
     required this.expertType,
-    required this.specialty,
+    required this.consultationTopic,
     required this.title,
     required this.description,
     required this.photos,
@@ -11,9 +12,10 @@ class ConsultationWritingModel {
   });
 
   final String consultationId;
+  final String userId;
   final String petId;
   final String expertType;
-  final String specialty; // 상담 분야
+  final String consultationTopic; // 상담 분야
   final String title; // 상담 제목
   final String description; // 상담 내용
   final List<String> photos; // URL이나 경로 문자열
@@ -22,9 +24,10 @@ class ConsultationWritingModel {
   // 빈 모델
   ConsultationWritingModel.empty()
       : consultationId = "",
+        userId = "",
         petId = "",
         expertType = "",
-        specialty = "",
+        consultationTopic = "",
         title = "",
         description = "",
         photos = [],
@@ -33,9 +36,10 @@ class ConsultationWritingModel {
   // 복사 메서드
   ConsultationWritingModel copyWith({
     String? consultationId,
+    String? userId,
     String? petId,
     String? expertType,
-    String? specialty,
+    String? consultationTopic,
     String? title,
     String? description,
     List<String>? photos,
@@ -43,9 +47,10 @@ class ConsultationWritingModel {
   }) {
     return ConsultationWritingModel(
       consultationId: consultationId ?? this.consultationId,
+      userId: userId ?? this.userId,
       expertType: expertType ?? this.expertType,
       petId: petId ?? this.petId,
-      specialty: specialty ?? this.specialty,
+      consultationTopic: consultationTopic ?? this.consultationTopic,
       title: title ?? this.title,
       description: description ?? this.description,
       photos: photos ?? this.photos,
@@ -59,7 +64,7 @@ class ConsultationWritingModel {
       "consultationId": consultationId,
       'petId': petId,
       "expertType": expertType,
-      'specialty': specialty,
+      'consultationTopic': consultationTopic,
       'title': title,
       'description': description,
       'photos': photos,
@@ -70,9 +75,10 @@ class ConsultationWritingModel {
   // JSON에서 모델 생성
   ConsultationWritingModel.fromJson(Map<String, dynamic> json)
       : consultationId = json['consultationId'],
+        userId = json['userId'],
         expertType = json['expertType'],
         petId = json['petId'],
-        specialty = json['specialty'],
+        consultationTopic = json['consultationTopic'],
         title = json['title'],
         description = json['description'],
         photos = List<String>.from(json['photos']),

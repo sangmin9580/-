@@ -45,6 +45,7 @@ class MainNavigationViewModel extends Notifier<MainNavigationModel> {
       print("index : $index, statetab : ${state.tabBarSelectedIndex}");
       print("_navigationHistory nav : ${navHistoryNewState.last.toJson()}");
     }
+    ref.read(currentScreenProvider.notifier).state = index;
   }
 
   bool wasProfessorTabPreviouslySelected = false;
@@ -52,13 +53,15 @@ class MainNavigationViewModel extends Notifier<MainNavigationModel> {
   void setTabFromRoute(
     String tab,
   ) {
-    bool isInitialSetup = ref.read(isInitialSetupProvder);
+    ref.read(isInitialSetupProvder.notifier).state = true;
     // 뒤로 가기 상황에서는 특정 로직을 실행하지 않음
-    isInitialSetup = true;
+
     switch (tab) {
       case 'home':
-        setTabBarSelectedIndex(0, isInitialSetup: true);
-        setNavigationBarSelectedIndex(0, isInitialSetup: true);
+        if (ref.read(currentScreenProvider.notifier).state != 2) {
+          setTabBarSelectedIndex(0, isInitialSetup: true);
+          setNavigationBarSelectedIndex(0, isInitialSetup: true);
+        }
 
         break;
       case 'search':
@@ -80,7 +83,10 @@ class MainNavigationViewModel extends Notifier<MainNavigationModel> {
   }
 
   void goToHomePage(BuildContext context) {
-    setNavigationBarSelectedIndex(0);
+    setNavigationBarSelectedIndex(
+      0,
+      isFromPop: true,
+    );
     print("5");
 
     Navigator.of(context).popUntil((route) => route.isFirst);

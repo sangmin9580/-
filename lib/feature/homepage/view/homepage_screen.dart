@@ -176,24 +176,31 @@ class HomepageScreen extends ConsumerWidget {
           Gaps.v20,
           Align(
             alignment: Alignment.center,
-            child: Container(
-              alignment: Alignment.center,
-              height: size.width * 0.15,
-              width: size.width * 0.7,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(
-                  10,
+            child: GestureDetector(
+              onTap: () {
+                ref
+                    .read(mainNavigationViewModelProvider.notifier)
+                    .setTabBarSelectedIndex(1);
+              },
+              child: Container(
+                alignment: Alignment.center,
+                height: size.width * 0.15,
+                width: size.width * 0.7,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(
+                    10,
+                  ),
+                  border: Border.all(
+                    width: 1,
+                    color: Colors.grey.shade500,
+                  ),
                 ),
-                border: Border.all(
-                  width: 1,
-                  color: Colors.grey.shade500,
-                ),
-              ),
-              child: Text(
-                "최신 상담글 더 보기",
-                style: TextStyle(
-                  fontWeight: FontWeight.w600,
-                  fontSize: Theme.of(context).textTheme.titleMedium!.fontSize,
+                child: Text(
+                  "최신 상담글 더 보기",
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: Theme.of(context).textTheme.titleMedium!.fontSize,
+                  ),
                 ),
               ),
             ),

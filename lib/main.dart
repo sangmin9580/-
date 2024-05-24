@@ -9,6 +9,8 @@ import 'package:project/firebase_options.dart';
 import 'package:project/router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   //app이 시작되기 전에 모든 준비를 마칠 수 있도록 하는 행위
@@ -121,8 +123,10 @@ class MyApp extends ConsumerWidget {
 // themeMode: ThemeMode.system,
         );
       },
-      loading: () => const MaterialApp(
-        home: Scaffold(body: Center(child: CircularProgressIndicator())),
+      loading: () => MaterialApp(
+        navigatorKey: navigatorKey,
+        // 이거는 상담글 작성하고 내가 상담글 완료되었습니다라는 문구를 띄우려고 하니까 await 다음에는 context가 만료되었다고, 더이상쓸수 없다는 소리를 해가지고 gpt에 물어봐서 해봤음.
+        home: const Scaffold(body: Center(child: CircularProgressIndicator())),
       ),
       error: (e, stack) => const MaterialApp(
         home: Scaffold(body: Center(child: Text('Error loading preferences'))),

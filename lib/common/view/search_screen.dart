@@ -95,11 +95,12 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
   }
 
   void _onBackbuttonTap() {
-    print("3");
+    print("3333333");
 
     ref
         .read(mainNavigationViewModelProvider.notifier)
-        .setNavigationBarSelectedIndex(0);
+        .setNavigationBarSelectedIndex(0, isFromPop: true);
+    FocusScope.of(context).unfocus();
   }
 
   void _onbodyTap() {
@@ -114,6 +115,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     final currentIndex = ref.watch(currentScreenProvider);
     final isSearchScreenActive =
         currentIndex == 1; // SearchScreen이 두 번째 탭이라고 가정
+    print("isSearchScreenActive : $isSearchScreenActive");
 
     // 자동으로 포커스를 주기 위해 Delay를 주어 실행
     if (isSearchScreenActive && _shouldRequestFocus) {

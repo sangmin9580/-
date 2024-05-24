@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:project/feature/consultationcase/viewmodel/consultation_writing_vm.dart';
 
 class ConsultingExampleViewModel extends Notifier<void> {
   @override
@@ -15,8 +16,6 @@ class ConsultingExampleViewModel extends Notifier<void> {
   }
 }
 
-final expertTypeProvider = StateProvider<String?>((ref) => null);
-final consultationTopicProvider = StateProvider<String?>((ref) => null);
 final consultingExampleProvider =
     NotifierProvider<ConsultingExampleViewModel, void>(
   () => ConsultingExampleViewModel(),
