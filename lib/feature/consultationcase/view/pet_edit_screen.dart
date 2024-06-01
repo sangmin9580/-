@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:project/constants/default.dart';
 import 'package:project/constants/gaps.dart';
 import 'package:project/constants/sizes.dart';
-import 'package:project/feature/consultationcase/viewmodel/consultingexample_vm.dart';
+import 'package:project/feature/consultationcase/viewmodel/consultation_writing_vm.dart';
 import 'package:project/feature/mypage/pets/viewmodel/pet_navigation_vm.dart';
 import 'package:project/feature/mypage/pets/views/addpet_name_screen.dart';
 import 'package:project/feature/mypage/pets/viewmodel/pet_select_vm.dart';

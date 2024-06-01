@@ -1,8 +1,10 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:project/feature/consultationcase/model/consultation_writing_model.dart';
 import 'package:project/feature/consultationcase/repo/consultation_repo.dart';
+import 'package:project/utils.dart';
 
-class ConsultingExampleViewModel
+class MyConsultationListViewModel
     extends AsyncNotifier<List<ConsultationWritingModel>> {
   late final ConsultationRepository _repository;
   List<ConsultationWritingModel> _list = [];
@@ -11,12 +13,10 @@ class ConsultingExampleViewModel
 
   Future<List<ConsultationWritingModel>> _fetchConsultations({
     DateTime? lastTimestamp,
-    int limit = 5,
   }) async {
     final List<ConsultationWritingModel> consultations =
         await _repository.getConsultations(
       lastTimestamp: lastTimestamp,
-      limit: limit,
     );
     if (consultations.isEmpty) {
       hasMoreData = false;
@@ -28,7 +28,7 @@ class ConsultingExampleViewModel
   @override
   Future<List<ConsultationWritingModel>> build() async {
     _repository = ref.read(consultationRepo);
-    _list = await _fetchConsultations();
+    _list = await _fetchConsultations(lastTimestamp: null);
     return _list;
   }
 
@@ -45,19 +45,39 @@ class ConsultingExampleViewModel
     isLoading = false;
   }
 
-  Future<void> refresh() async {
+  Future<void> refresh(BuildContext context) async {
     hasMoreData = true;
     _list = [];
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
-      final consultations = await _fetchConsultations();
+      final consultations = await _fetchConsultations(lastTimestamp: null);
       _list = consultations;
       return _list;
     });
+    if (state.hasError) {
+      showFirebaseErrorSnack(context, state.error);
+    }
+  }
+
+  Future<void> deleteConsultation(
+      String userId, String consultationId, BuildContext context) async {
+    state = const AsyncValue.loading();
+    state = await AsyncValue.guard(() async {
+      await _repository.deleteConsultation(userId, consultationId);
+      _list.removeWhere((c) => c.consultationId == consultationId);
+      return _list;
+    });
+    if (state.hasError) {
+      showFirebaseErrorSnack(context, state.error);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('상담 내역이 삭제되었습니다.')),
+      );
+    }
   }
 }
 
-final consultationListProvider = AsyncNotifierProvider<
-    ConsultingExampleViewModel, List<ConsultationWritingModel>>(
-  () => ConsultingExampleViewModel(),
+final myConsultationListProvider = AsyncNotifierProvider<
+    MyConsultationListViewModel, List<ConsultationWritingModel>>(
+  () => MyConsultationListViewModel(),
 );

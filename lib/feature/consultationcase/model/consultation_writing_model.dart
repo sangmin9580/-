@@ -62,6 +62,7 @@ class ConsultationWritingModel {
   Map<String, dynamic> toJson() {
     return {
       "consultationId": consultationId,
+      "userId": userId,
       'petId': petId,
       "expertType": expertType,
       'consultationTopic': consultationTopic,

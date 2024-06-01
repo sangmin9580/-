@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:project/common/view/search_screen.dart';
+import 'package:project/feature/search/views/search_screen.dart';
 import 'package:project/feature/consultationcase/view/consulting_detail_screen.dart';
 import 'package:project/common/viewmodel/main_navigation_vm.dart';
 import 'package:project/common/widgets/bottomnavigationBar.dart';
@@ -222,8 +222,13 @@ class _ProfessorNavigationScreenState
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) =>
-                          const ConsultingDetailScreen(), // 상세 화면으로 전환
+                      builder: (context) => const ConsultingDetailScreen(
+                        consultantclass: "consultation.consultationTopic",
+                        title: "consultation.title",
+                        detail: "consultation.description",
+                        time: 0,
+                        views: 0,
+                      ), // 상세 화면으로 전환
                     ),
                   );
                 },

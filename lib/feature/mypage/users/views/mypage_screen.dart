@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
@@ -6,10 +7,12 @@ import 'package:project/constants/default.dart';
 
 import 'package:project/constants/gaps.dart';
 import 'package:project/constants/sizes.dart';
+import 'package:project/feature/consultationcase/viewmodel/consultation_writing_vm.dart';
+import 'package:project/feature/mypage/users/views/my_consultation_message_screen.dart';
 import 'package:project/feature/mypage/users/viewmodel/user_vm.dart';
 import 'package:project/feature/mypage/pets/views/pet_navigation_screen.dart';
 import 'package:project/feature/mypage/users/views/profile_edit_screen.dart';
-import 'package:project/feature/mypage/pets/views/setting_screen.dart';
+import 'package:project/feature/mypage/users/views/setting_screen.dart';
 import 'package:project/feature/mypage/pets/viewmodel/mypage_vm.dart';
 import 'package:project/feature/mypage/widgets/avatar.dart';
 import 'package:project/feature/mypage/widgets/consultanthistorydetailtile.dart';
@@ -182,9 +185,23 @@ class _MyPageScreenState extends ConsumerState<MyPageScreen> {
                       count: 0,
                     ),
                     Gaps.v20,
-                    const ConsultantHistoryDetailTile(
-                      text: "작성한 온라인 상담글",
-                      count: 0,
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  const MyConsultationMessages(),
+                            ));
+                      },
+                      child: ref.watch(consultationCountProvider).when(
+                            loading: () => const CircularProgressIndicator(),
+                            error: (error, stack) => Text(error.toString()),
+                            data: (count) => ConsultantHistoryDetailTile(
+                              text: "작성한 온라인 상담글",
+                              count: count,
+                            ),
+                          ),
                     ),
                     Gaps.v32,
                   ],

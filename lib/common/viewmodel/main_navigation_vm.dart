@@ -1,14 +1,19 @@
 import 'package:flutter/material.dart';
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:project/common/model/main_navigation_model.dart';
 import 'package:project/common/model/navigation_history_state.dart';
 import 'package:project/common/viewmodel/navigation_history_state_vm.dart';
 
 class MainNavigationViewModel extends Notifier<MainNavigationModel> {
+  late TabController _tabController;
+
   @override
   MainNavigationModel build() {
     return MainNavigationModel();
+  }
+
+  void setTabController(TabController tabController) {
+    _tabController = tabController;
   }
 
   void setTabBarSelectedIndex(int index,
@@ -22,8 +27,7 @@ class MainNavigationViewModel extends Notifier<MainNavigationModel> {
           tabIndex: index, navBarIndex: state.navigationBarSelectedIndex));
     }
     state = state.copyWith(tabBarSelectedIndex: index);
-    // 탭 컨트롤러의 인덱스 업데이트 로직 통합
-    ref.read(tabControllerIndexProvider.notifier).state = index;
+    _tabController.animateTo(index); // 탭 컨트롤러의 인덱스 업데이트
     wasProfessorTabPreviouslySelected = (index == 2);
   }
 
@@ -37,7 +41,6 @@ class MainNavigationViewModel extends Notifier<MainNavigationModel> {
     }
     if (!isFromPop && !isInitialSetup) {
       print("isSetUp true인데 호출되냐?");
-
       navHistory.pushState(NavigationHistyoryStateModel(
           tabIndex: state.tabBarSelectedIndex, navBarIndex: index));
       final navHistoryNewState = ref.read(navigationHistoryProvider);
@@ -109,3 +112,7 @@ final mainNavigationViewModelProvider =
 final currentScreenProvider = StateProvider<int>((ref) => 0); // 기본값은 0 (첫 번째 탭)
 final tabControllerIndexProvider = StateProvider<int>((ref) => 0);
 final isInitialSetupProvder = StateProvider<bool>((ref) => false);
+final tabControllerProvider = Provider<TabController>((ref) {
+  throw UnimplementedError(
+      'TabControllerProvider must be overridden in the widget tree');
+});

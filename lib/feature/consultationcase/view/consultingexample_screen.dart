@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
 import 'package:project/constants/default.dart';
 import 'package:project/constants/gaps.dart';
+import 'package:project/feature/consultationcase/model/consultation_writing_model.dart';
+import 'package:project/feature/consultationcase/viewmodel/consultingexample_vm.dart';
 import 'package:project/feature/consultationcase/widgets/consultantexample_box.dart';
+import 'package:project/feature/consultationcase/view/consulting_detail_screen.dart';
+import 'package:project/feature/search/viewmodel/search_vm.dart';
 
 class ConsultantExampleScreen extends ConsumerWidget {
   const ConsultantExampleScreen({
@@ -13,85 +15,126 @@ class ConsultantExampleScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(
-              vertical: verticalPadding,
-              horizontal: horizontalPadding,
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Gaps.v20,
-                Text(
-                  "나와 비슷한 문제에 대한",
-                  style: TextStyle(
-                    fontSize: Theme.of(context).textTheme.titleLarge!.fontSize,
-                    fontWeight: FontWeight.w600,
-                  ),
+    final consultationListState = ref.watch(consultationListProvider);
+    final searchState = ref.watch(searchViewModelProvider);
+
+    List<ConsultationWritingModel> consultations = [];
+
+    if (searchState is AsyncData &&
+        searchState.value != null &&
+        searchState.value!.isNotEmpty) {
+      consultations = searchState.value!;
+    } else if (consultationListState is AsyncData &&
+        consultationListState.value != null) {
+      consultations = consultationListState.value!;
+    }
+
+    return consultationListState.when(
+      data: (consultationData) {
+        if (consultations.isEmpty) {
+          return const Center(child: Text("작성된 상담글이 없습니다."));
+        }
+
+        return SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  vertical: verticalPadding,
+                  horizontal: horizontalPadding,
                 ),
-                Text(
-                  "해결책을 알아보세요",
-                  style: TextStyle(
-                    fontSize: Theme.of(context).textTheme.titleLarge!.fontSize,
-                    fontWeight: FontWeight.w600,
-                  ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Gaps.v20,
+                    Text(
+                      "나와 비슷한 문제에 대한",
+                      style: TextStyle(
+                        fontSize:
+                            Theme.of(context).textTheme.titleLarge!.fontSize,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    Text(
+                      "해결책을 알아보세요",
+                      style: TextStyle(
+                        fontSize:
+                            Theme.of(context).textTheme.titleLarge!.fontSize,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    Gaps.v32,
+                  ],
                 ),
-                Gaps.v32,
-              ],
-            ),
-          ),
-          Divider(
-            height: 2,
-            thickness: 5,
-            indent: 0,
-            endIndent: 0,
-            color: Colors.grey.shade300,
-          ),
-          const Padding(
-            padding: EdgeInsets.symmetric(
-              vertical: verticalPadding,
-              horizontal: horizontalPadding,
-            ),
-            child: Row(
-              children: [
-                Text("최신 답변순"),
-                Gaps.h10,
-                Text("최신 질문순"),
-                Gaps.h10,
-                Text("조회순"),
-              ],
-            ),
-          ),
-          defaultVericalDivider,
-          Padding(
-            padding: const EdgeInsets.symmetric(
-              vertical: verticalPadding,
-              horizontal: horizontalPadding,
-            ),
-            child: ListView.builder(
-              shrinkWrap: true, // 여기를 추가하세요
-              physics: const NeverScrollableScrollPhysics(), // 그리고 여기도 추가하세요
-              itemCount: 10,
-              itemBuilder: (context, index) => ConsultantExampleBox(
-                consultantclass: "고소/소송절차",
-                title: "항소재판 변호사 선임과 징역형 상담",
-                name: "윤상민",
-                detail:
-                    "1. 항소심에서 적극적으로 양형사유를 개진하고, 성실한 자세로 재판에 임하여 집행유예를 목표로 집중해야할 것으로 사람잉머리ㅓㅣㅏㅓㄴ",
-                count: 3,
-                time: 30,
-                views: 16,
-                onTap: () {},
               ),
-            ),
+              Divider(
+                height: 2,
+                thickness: 5,
+                indent: 0,
+                endIndent: 0,
+                color: Colors.grey.shade300,
+              ),
+              const Padding(
+                padding: EdgeInsets.symmetric(
+                  vertical: verticalPadding,
+                  horizontal: horizontalPadding,
+                ),
+                child: Row(
+                  children: [
+                    Text("최신 답변순"),
+                    Gaps.h10,
+                    Text("최신 질문순"),
+                    Gaps.h10,
+                    Text("조회순"),
+                  ],
+                ),
+              ),
+              defaultVericalDivider,
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  vertical: verticalPadding,
+                  horizontal: horizontalPadding,
+                ),
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: consultations.length,
+                  itemBuilder: (context, index) {
+                    final consultation = consultations[index];
+                    return ConsultantExampleBox(
+                      consultantclass: consultation.consultationTopic,
+                      title: consultation.title,
+                      name: "윤상민", // 이름은 예시로 작성, 실제 데이터로 변경 필요
+                      detail: consultation.description,
+                      count: 0,
+                      time: 22,
+                      views: 0,
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ConsultingDetailScreen(
+                              consultantclass: consultation.consultationTopic,
+                              title: consultation.title,
+                              detail: consultation.description,
+                              time: 2,
+                              views: 0,
+                            ),
+                          ),
+                        );
+                      },
+                    );
+                  },
+                ),
+              ),
+              defaultVericalDivider,
+            ],
           ),
-          defaultVericalDivider,
-        ],
-      ),
+        );
+      },
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (error, stack) => Center(child: Text("오류: $error")),
     );
   }
 }

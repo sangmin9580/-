@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:project/common/viewmodel/main_navigation_vm.dart';
-import 'package:project/common/viewmodel/search_vm.dart';
 import 'package:project/constants/default.dart';
 import 'package:project/constants/gaps.dart';
 import 'package:project/constants/sizes.dart';
+import 'package:project/feature/search/viewmodel/search_vm.dart';
 
 class SearchScreen extends ConsumerStatefulWidget {
   const SearchScreen({super.key});
@@ -16,10 +16,9 @@ class SearchScreen extends ConsumerStatefulWidget {
 }
 
 class _SearchScreenState extends ConsumerState<SearchScreen> {
-  // TextEditingController 인스턴스를 생성합니다.
   final TextEditingController _textEditingController = TextEditingController();
   late FocusNode _searchFocusNode;
-  bool _shouldRequestFocus = true; // 포커스 요청 여부를 결정하는 플래그
+  bool _shouldRequestFocus = true;
 
   @override
   void initState() {
@@ -34,7 +33,6 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     super.dispose();
   }
 
-// 검색한 후 최근 검색어 남기기 위한 위젯들
   List<Widget> buildSearchRows(
       BuildContext context, List<String> searchTerms, WidgetRef ref) {
     List<Widget> rows = [];
@@ -50,7 +48,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
         ),
       );
       if (i + 2 < searchTerms.length) {
-        rows.add(Gaps.v40); // Adds vertical space between rows
+        rows.add(Gaps.v40);
       }
     }
     return rows;
@@ -78,7 +76,6 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
           Gaps.h5,
           InkWell(
             onTap: () {
-              // 검색어 삭제 로직을 ViewModel을 통해 구현
               ref
                   .read(searchViewModelProvider.notifier)
                   .removeSearchTerm(searchTerm);
@@ -95,8 +92,6 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
   }
 
   void _onBackbuttonTap() {
-    print("3333333");
-
     ref
         .read(mainNavigationViewModelProvider.notifier)
         .setNavigationBarSelectedIndex(0, isFromPop: true);
@@ -104,20 +99,18 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
   }
 
   void _onbodyTap() {
-    _shouldRequestFocus = false; // 사용자가 화면을 탭하면 포커스 요청을 중지
+    _shouldRequestFocus = false;
     FocusScope.of(context).unfocus();
   }
 
   @override
   Widget build(BuildContext context) {
-    final searchTerms = ref.watch(searchViewModelProvider).recentSearches;
+    final searchViewModel = ref.watch(searchViewModelProvider.notifier);
+    final searchTerms = searchViewModel.recentSearches;
 
     final currentIndex = ref.watch(currentScreenProvider);
-    final isSearchScreenActive =
-        currentIndex == 1; // SearchScreen이 두 번째 탭이라고 가정
-    print("isSearchScreenActive : $isSearchScreenActive");
+    final isSearchScreenActive = currentIndex == 1;
 
-    // 자동으로 포커스를 주기 위해 Delay를 주어 실행
     if (isSearchScreenActive && _shouldRequestFocus) {
       WidgetsBinding.instance.addPostFrameCallback(
         (_) {
@@ -153,10 +146,12 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                   placeholder: "검색어를 입력해주세요",
                   onSubmitted: (String value) {
                     if (value.isNotEmpty) {
+                      searchViewModel.addSearchTerm(value);
+                      searchViewModel.searchConsultations(value);
                       ref
-                          .read(searchViewModelProvider.notifier)
-                          .addSearchTerm(value);
-                      _textEditingController.clear(); // 검색어 제출 후 텍스트 필드 초기화
+                          .read(mainNavigationViewModelProvider.notifier)
+                          .setNavigationBarSelectedIndex(0);
+                      _textEditingController.clear();
                     }
                   },
                 ),
@@ -183,10 +178,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                   ),
                   InkWell(
                     onTap: () {
-                      // 전체 삭제 로직을 ViewModel을 통해 구현
-                      ref
-                          .read(searchViewModelProvider.notifier)
-                          .clearSearchTerms();
+                      searchViewModel.clearSearchTerms();
                     },
                     child: Text(
                       "전체삭제",
