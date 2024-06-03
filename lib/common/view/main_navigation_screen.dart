@@ -1,15 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:project/common/viewmodel/navigation_history_state_vm.dart';
 import 'package:project/feature/consultationcase/view/consultingexample_screen.dart';
 import 'package:project/common/viewmodel/main_navigation_vm.dart';
 import 'package:project/common/widgets/bottomnavigationBar.dart';
-
 import 'package:project/constants/gaps.dart';
-
 import 'package:project/feature/consultationcase/view/consultingwriting_screen.dart';
 import 'package:project/feature/search/views/search_screen.dart';
 import 'package:project/feature/homepage/view/homepage_screen.dart';
@@ -59,7 +54,7 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen>
   void initState() {
     super.initState();
     final mainNavProvider = ref.read(mainNavigationViewModelProvider);
-    bool isInitialSetup = ref.read(isInitialSetupProvder);
+    bool isInitialSetup = ref.read(isInitialSetupProvider);
 
     _tabController = TabController(
       length: 3,
@@ -74,7 +69,14 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen>
     _tabController.animation!.addStatusListener((status) {
       if (status == AnimationStatus.completed ||
           status == AnimationStatus.dismissed) {
-        ref.read(isPopNavigationProvider.notifier).state = false;
+        ref.read(isPopNavigationMainProvider.notifier).state = false;
+      }
+    });
+
+    _tabController.animation!.addStatusListener((status) {
+      if (status == AnimationStatus.completed ||
+          status == AnimationStatus.dismissed) {
+        ref.read(isPopNavigationMainProvider.notifier).state = false;
       }
     });
 
@@ -99,7 +101,7 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen>
       mainNavProvider.setTabBarSelectedIndex(0);
     }
 
-    if (!ref.read(isPopNavigationProvider.notifier).state) {
+    if (!ref.read(isPopNavigationMainProvider.notifier).state) {
       mainNavProvider.setNavigationBarSelectedIndex(index);
     }
     ref.read(currentScreenProvider.notifier).state = index;
@@ -121,55 +123,6 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen>
 
   void _onbodyTap() {
     FocusScope.of(context).unfocus();
-  }
-
-  void handlePopScope(bool didPop, BuildContext context) {
-    final mainNavProvider = ref.read(mainNavigationViewModelProvider.notifier);
-    final navHistory = ref.read(navigationHistoryProvider.notifier);
-    final navHistoryState = ref.read(navigationHistoryProvider);
-
-    ref.read(isPopNavigationProvider.notifier).state = true;
-
-    if (navHistoryState.length > 1) {
-      final navHistoryNewState = navHistoryState.sublist(
-          0, ref.read(navigationHistoryProvider).length - 1);
-      navHistory.setState(navHistoryNewState);
-
-      final lastIndexs = navHistoryNewState.last;
-
-      _tabController.animateTo(lastIndexs.tabIndex);
-      mainNavProvider.setTabBarSelectedIndex(lastIndexs.tabIndex,
-          isFromPop: true);
-      mainNavProvider.setNavigationBarSelectedIndex(lastIndexs.navBarIndex,
-          isFromPop: true);
-    } else {
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: const Text("Exit"),
-            content: const Text("Do you really want to exit the app?"),
-            actions: <Widget>[
-              TextButton(
-                child: const Text("No"),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              ),
-              TextButton(
-                child: const Text("Yes"),
-                onPressed: () {
-                  SystemNavigator.pop();
-                },
-              )
-            ],
-          );
-        },
-      );
-    }
-    SchedulerBinding.instance.addPostFrameCallback((_) {
-      ref.read(isPopNavigationProvider.notifier).state = false;
-    });
   }
 
   @override
@@ -197,7 +150,7 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen>
       canPop: false,
       onPopInvoked: (bool didPop) {
         if (!didPop && !isConsultingScreenActive) {
-          handlePopScope(didPop, context);
+          ref.read(mainNavigationViewModelProvider.notifier).handlePop(context);
         }
       },
       child: GestureDetector(

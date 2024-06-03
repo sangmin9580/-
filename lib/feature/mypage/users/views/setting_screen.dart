@@ -5,8 +5,8 @@ import 'package:go_router/go_router.dart';
 import 'package:project/constants/default.dart';
 import 'package:project/constants/gaps.dart';
 import 'package:project/constants/sizes.dart';
-import 'package:project/feature/authentication/repo/authentication_repo.dart';
-import 'package:project/feature/authentication/views/signup_screen.dart';
+import 'package:project/feature/authentication/user/repo/authentication_repo.dart';
+import 'package:project/feature/authentication/user/views/signup_screen.dart';
 import 'package:project/feature/mypage/pets/views/notification_screen.dart';
 import 'package:project/feature/mypage/widgets/settingstitle.dart';
 

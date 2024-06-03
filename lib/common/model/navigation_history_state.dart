@@ -1,11 +1,11 @@
-class NavigationHistyoryStateModel {
+class NavigationHistoryStateModel {
   final int tabIndex;
   final int navBarIndex;
 
-  NavigationHistyoryStateModel(
+  NavigationHistoryStateModel(
       {required this.tabIndex, required this.navBarIndex});
 
-  NavigationHistyoryStateModel.fromJson(Map<int, int> json)
+  NavigationHistoryStateModel.fromJson(Map<int, int> json)
       : tabIndex = json["tabIndex"]!,
         navBarIndex = json["navBarIndex"]!;
 
@@ -14,5 +14,10 @@ class NavigationHistyoryStateModel {
       "tabIndex": tabIndex,
       "navBarIndex": navBarIndex,
     };
+  }
+
+  @override
+  String toString() {
+    return '($tabIndex, $navBarIndex)';
   }
 }

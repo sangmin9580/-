@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:project/constants/default.dart';
 
 import 'package:project/constants/sizes.dart';
-import 'package:project/feature/authentication/repo/authentication_repo.dart';
+import 'package:project/feature/authentication/user/repo/authentication_repo.dart';
 import 'package:project/feature/consultationcase/view/edit_consultingwriting_screen.dart';
 import 'package:project/feature/mypage/users/viewmodel/my_consultation_messages_vm.dart';
 import 'package:project/feature/mypage/users/viewmodel/user_vm.dart';

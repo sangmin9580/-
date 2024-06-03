@@ -151,6 +151,9 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                       ref
                           .read(mainNavigationViewModelProvider.notifier)
                           .setNavigationBarSelectedIndex(0);
+                      ref
+                          .read(mainNavigationViewModelProvider.notifier)
+                          .setTabBarSelectedIndex(1);
                       _textEditingController.clear();
                     }
                   },

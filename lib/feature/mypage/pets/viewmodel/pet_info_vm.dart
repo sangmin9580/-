@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:project/common/viewmodel/main_navigation_vm.dart';
-import 'package:project/feature/authentication/repo/authentication_repo.dart';
+import 'package:project/feature/authentication/user/repo/authentication_repo.dart';
 import 'package:project/feature/mypage/pets/model/pet_model.dart';
 import 'package:project/feature/mypage/pets/repo/pet_repo.dart';
 import 'package:project/feature/mypage/pets/viewmodel/pet_navigation_vm.dart';

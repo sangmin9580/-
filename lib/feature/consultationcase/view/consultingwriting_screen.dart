@@ -12,7 +12,6 @@ import 'package:project/constants/sizes.dart';
 import 'package:project/feature/consultationcase/model/consultation_writing_model.dart';
 import 'package:project/feature/consultationcase/view/pet_edit_screen.dart';
 import 'package:project/feature/consultationcase/viewmodel/consultation_writing_vm.dart';
-import 'package:project/feature/consultationcase/viewmodel/consultingexample_vm.dart';
 import 'package:project/feature/consultationcase/widgets/%08consultant_requirement_text.dart';
 import 'package:project/feature/mypage/pets/model/pet_model.dart';
 import 'package:project/feature/mypage/pets/viewmodel/pet_navigation_vm.dart';
@@ -104,8 +103,6 @@ class _ConsultationWritingScreenState
     final navHistory = ref.read(navigationHistoryProvider.notifier);
     final navHistoryState = ref.read(navigationHistoryProvider);
 
-    ref.read(isPopNavigationProvider.notifier).state = true;
-
     if (navHistoryState.length > 1) {
       // 최소 두 개의 항목이 있을 때만 pop 실행
       final navHistoryNewState = navHistoryState.sublist(
@@ -115,8 +112,8 @@ class _ConsultationWritingScreenState
       // 새로운 현재 상태
       final lastIndexs = navHistoryNewState.last;
 
-      MainNavigationViewModel.setTabBarSelectedIndex(lastIndexs.tabIndex,
-          isFromPop: true);
+      MainNavigationViewModel.setTabBarSelectedIndexFromPop(
+          lastIndexs.tabIndex);
       MainNavigationViewModel.setNavigationBarSelectedIndex(
           lastIndexs.navBarIndex,
           isFromPop: true);
@@ -194,7 +191,7 @@ class _ConsultationWritingScreenState
     });
 
     ref.read(petSelectionStateProvider.notifier).state = false;
-    ref.read(isPopNavigationProvider.notifier).state = false;
+    ref.read(isPopNavigationMainProvider.notifier).state = false;
     _titleEditingController.clear();
     _descriptionEditingController.clear();
     _expertTypeController.clear();
@@ -276,7 +273,7 @@ class _ConsultationWritingScreenState
           );
         },
       );
-      ref.read(isPopNavigationProvider.notifier).state = false;
+      ref.read(isPopNavigationMainProvider.notifier).state = false;
     } else {
       // 변경사항이 없으면 바로 뒤로 갑니다.
       // 무조건 0이 될 수밖에 없음
@@ -284,7 +281,7 @@ class _ConsultationWritingScreenState
         0,
         isFromPop: true,
       );
-      ref.read(isPopNavigationProvider.notifier).state = false;
+      ref.read(isPopNavigationMainProvider.notifier).state = false;
     }
   }
 
